@@ -6,8 +6,8 @@ import { isSanityConfigured } from "@/lib/sanity/client";
 import Link from "next/link";
 
 export const metadata = {
-    title: "Order Tracking — Velorra Admin",
-    description: "Velorra Fashion order progress",
+    title: "Order Tracking — Soft & Comfort Admin",
+    description: "Soft & Comfort order progress",
 };
 
 export const dynamic = "force-dynamic";

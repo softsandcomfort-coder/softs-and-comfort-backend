@@ -16,8 +16,8 @@ import {
 import { isSanityConfigured } from "@/lib/sanity/client";
 
 export const metadata = {
-    title: "Dashboard — Velorra Admin",
-    description: "Velorra Fashion store overview",
+    title: "Dashboard — Soft & Comfort Admin",
+    description: "Soft & Comfort store overview",
 };
 
 // always read fresh, so the dashboard reflects its own writes immediately

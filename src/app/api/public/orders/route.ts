@@ -176,7 +176,7 @@ export async function POST(req: Request) {
             storeName?: string;
             whatsappNumber?: string;
         };
-        const storeName = settings.storeName || "Velorra Fashion";
+        const storeName = settings.storeName || "Soft & Comfort";
 
         // Courtesy email. Best-effort by design: the order already exists, so a
         // missing SMTP config or a bounced send must not fail the request.

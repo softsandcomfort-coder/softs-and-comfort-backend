@@ -7,8 +7,8 @@ import { isSanityConfigured } from "@/lib/sanity/client";
 import Link from "next/link";
 
 export const metadata = {
-    title: "All Products — Velorra Admin",
-    description: "Manage the Velorra Fashion product catalogue",
+    title: "All Products — Soft & Comfort Admin",
+    description: "Manage the Soft & Comfort product catalogue",
 };
 
 // always read fresh: the dashboard must show its own writes immediately

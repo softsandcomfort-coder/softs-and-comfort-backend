@@ -8,8 +8,8 @@ import type { Category } from "@/types/models";
 import Link from "next/link";
 
 export const metadata = {
-    title: "Categories — Velorra Admin",
-    description: "Manage Velorra Fashion product categories",
+    title: "Categories — Soft & Comfort Admin",
+    description: "Manage Soft & Comfort product categories",
 };
 
 export const dynamic = "force-dynamic";

@@ -8,8 +8,8 @@ import type { Product } from "@/types/models";
 import Link from "next/link";
 
 export const metadata = {
-    title: "Orders — Velorra Admin",
-    description: "Velorra Fashion customer orders",
+    title: "Orders — Soft & Comfort Admin",
+    description: "Soft & Comfort customer orders",
 };
 
 export const dynamic = "force-dynamic";

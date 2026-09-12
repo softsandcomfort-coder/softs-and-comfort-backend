@@ -62,7 +62,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     const [price, setPrice] = useState("");
     const [salePrice, setSalePrice] = useState("");
     const [sku, setSku] = useState("");
-    const [brand, setBrand] = useState("Velorra");
+    const [brand, setBrand] = useState("Soft & Comfort");
     const [stock, setStock] = useState("0");
     const [description, setDescription] = useState("");
     const [tags, setTags] = useState("");
@@ -102,7 +102,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 setPrice(p.price != null ? String(p.price) : "");
                 setSalePrice(p.salePrice != null ? String(p.salePrice) : "");
                 setSku(p.sku ?? "");
-                setBrand(p.brand ?? "Velorra");
+                setBrand(p.brand ?? "Soft & Comfort");
                 setStock(p.stock != null ? String(p.stock) : "0");
                 setDescription(p.description ?? "");
                 setTags((p.tags ?? []).join(", "));
@@ -495,7 +495,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                         <div className="body-title mb-10">Brand</div>
                         <input
                             type="text"
-                            placeholder="Velorra"
+                            placeholder="Soft & Comfort"
                             value={brand}
                             onChange={(e) => setBrand(e.target.value)}
                         />

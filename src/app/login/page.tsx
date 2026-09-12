@@ -2,8 +2,8 @@ import React, { Suspense } from "react";
 import LoginForm from "@/components/widgets/LoginForm";
 
 export const metadata = {
-    title: "Sign in — Velorra Admin",
-    description: "Sign in — Velorra Admin",
+    title: "Sign in — Soft & Comfort Admin",
+    description: "Sign in — Soft & Comfort Admin",
 };
 
 export default function page() {

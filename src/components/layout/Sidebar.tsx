@@ -15,7 +15,7 @@ export default function Sidebar({ handleSidebar }: SidebarProps) {
                     <Link href="/" id="site-logo-inner">
                         <Image
                             id="logo_header"
-                            alt="Velorra Fashion"
+                            alt="Soft & Comfort"
                             src="/images/logo/logo.svg"
                             width={154}
                             height={52}

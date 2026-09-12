@@ -7,8 +7,8 @@ import Link from "next/link";
 import React from "react";
 
 export const metadata = {
-    title: "Add Attribute — Velorra Admin",
-    description: "Add Attribute — Velorra Admin",
+    title: "Add Attribute — Soft & Comfort Admin",
+    description: "Add Attribute — Soft & Comfort Admin",
 };
 
 export default function page() {

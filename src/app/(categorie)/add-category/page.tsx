@@ -5,8 +5,8 @@ import Link from "next/link";
 import React from "react";
 
 export const metadata = {
-    title: "Add Category — Velorra Admin",
-    description: "Add Category — Velorra Admin",
+    title: "Add Category — Soft & Comfort Admin",
+    description: "Add Category — Soft & Comfort Admin",
 };
 
 export default function page() {

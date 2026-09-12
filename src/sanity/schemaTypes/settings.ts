@@ -6,7 +6,7 @@ export const siteSettings = defineType({
     title: 'Store settings',
     type: 'document',
     fields: [
-        defineField({ name: 'storeName', title: 'Store name', type: 'string', initialValue: 'Velorra Fashion' }),
+        defineField({ name: 'storeName', title: 'Store name', type: 'string', initialValue: 'Soft & Comfort' }),
         defineField({ name: 'tagline', title: 'Tagline', type: 'string' }),
         defineField({ name: 'supportEmail', title: 'Support email', type: 'string' }),
         defineField({ name: 'phone', title: 'Phone', type: 'string' }),

@@ -7,8 +7,8 @@ import type { AttributeItem } from "@/lib/sanity/catalog";
 import Link from "next/link";
 
 export const metadata = {
-    title: "Attributes — Velorra Admin",
-    description: "Manage Velorra Fashion product attributes",
+    title: "Attributes — Soft & Comfort Admin",
+    description: "Manage Soft & Comfort product attributes",
 };
 
 export const dynamic = "force-dynamic";

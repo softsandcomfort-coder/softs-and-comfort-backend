@@ -88,7 +88,7 @@ export const product = defineType({
             title: 'Brand',
             type: 'string',
             group: 'pricing',
-            initialValue: 'Velorra',
+            initialValue: 'Soft & Comfort',
         }),
         defineField({
             name: 'stock',

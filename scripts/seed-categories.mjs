@@ -1,5 +1,5 @@
 /**
- * Pushes Velorra's ten categories into the public catalogue dataset.
+ * Pushes Soft & Comfort's ten categories into the public catalogue dataset.
  *
  *   node scripts/seed-categories.mjs
  *

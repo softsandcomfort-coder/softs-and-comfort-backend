@@ -80,7 +80,7 @@ export default function Header1({
                     <Link href="/">
                         <Image
                             id="logo_header_mobile"
-                            alt="Velorra Fashion"
+                            alt="Soft & Comfort"
                             src="/images/logo/logo.svg"
                             width={154}
                             height={52}

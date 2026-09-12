@@ -7,8 +7,8 @@ import { isSanityConfigured } from "@/lib/sanity/client";
 import Link from "next/link";
 
 export const metadata = {
-    title: "Order Detail — Velorra Admin",
-    description: "Velorra Fashion order detail",
+    title: "Order Detail — Soft & Comfort Admin",
+    description: "Soft & Comfort order detail",
 };
 
 export const dynamic = "force-dynamic";
@@ -92,7 +92,7 @@ export default async function OrderDetailPage({
         return (
             <Layout>
                 {breadcrumbs}
-                <OrderDetailView order={order} storeName={(settings as { storeName?: string }).storeName || "Velorra Fashion"} />
+                <OrderDetailView order={order} storeName={(settings as { storeName?: string }).storeName || "Soft & Comfort"} />
             </Layout>
         );
     } catch (error) {

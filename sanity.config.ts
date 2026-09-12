@@ -24,7 +24,7 @@ const adminDataset = process.env.NEXT_PUBLIC_SANITY_ADMIN_DATASET || 'admin'
 export default defineConfig([
     {
         name: 'catalog',
-        title: 'Velorra — Catalogue',
+        title: 'Soft & Comfort — Catalogue',
         basePath: '/studio/catalog',
         projectId,
         dataset: catalogDataset,
@@ -67,7 +67,7 @@ export default defineConfig([
     },
     {
         name: 'admin',
-        title: 'Velorra — Admin data',
+        title: 'Soft & Comfort — Admin data',
         basePath: '/studio/admin-data',
         projectId,
         dataset: adminDataset,

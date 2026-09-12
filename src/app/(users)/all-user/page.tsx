@@ -7,8 +7,8 @@ import { isSanityConfigured } from "@/lib/sanity/client";
 import Link from "next/link";
 
 export const metadata = {
-    title: "Users — Velorra Admin",
-    description: "Manage Velorra Fashion dashboard accounts",
+    title: "Users — Soft & Comfort Admin",
+    description: "Manage Soft & Comfort dashboard accounts",
 };
 
 export const dynamic = "force-dynamic";

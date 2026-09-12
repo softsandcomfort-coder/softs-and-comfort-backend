@@ -9,7 +9,7 @@ import { POLICY_PAGES, blocksToText, type Policy, type PolicySlug } from "@/lib/
  *
  * Intentionally starts blank. The template shipped pre-written policies that
  * claimed the store ran on Shopify and Google Analytics and named a company
- * that is not Velorra — a legal page stating things that are untrue is worse
+ * that is not Soft & Comfort — a legal page stating things that are untrue is worse
  * than no page, so these are the owner's words or nothing.
  */
 export default function PolicyManager({ policies }: { policies: Policy[] }) {

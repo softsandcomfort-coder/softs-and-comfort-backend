@@ -26,7 +26,7 @@ type Settings = {
 };
 
 const DEFAULTS: Settings = {
-    storeName: "Velorra Fashion",
+    storeName: "Soft & Comfort",
     tagline: "",
     supportEmail: "",
     phone: "",

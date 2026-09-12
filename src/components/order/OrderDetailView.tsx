@@ -40,7 +40,7 @@ function formatAddress(address: Record<string, string> | null): string[] {
 
 export default function OrderDetailView({
     order,
-    storeName = "Velorra Fashion",
+    storeName = "Soft & Comfort",
 }: {
     order: Order;
     storeName?: string;
