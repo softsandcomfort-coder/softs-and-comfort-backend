@@ -45,6 +45,22 @@ export const dataMenu = [
                 ],
             },
             {
+                key: "promo",
+                title: "Promo Codes",
+                icon: "icon-percent",
+                iconSvg: null,
+                path: "/promo-codes",
+                children: [],
+            },
+            {
+                key: "policies",
+                title: "Policies",
+                icon: "icon-file-text",
+                iconSvg: null,
+                path: "/policies",
+                children: [],
+            },
+            {
                 key: "order",
                 title: "Order",
                 icon: null,

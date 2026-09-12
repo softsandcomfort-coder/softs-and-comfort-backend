@@ -72,8 +72,11 @@ export default async function DashboardPage() {
                     ))}
                 </div>
 
-                <div className="tf-section-1 mb-30">
+                <div className="mb-30">
                     <RevenueChart3 revenueData={revenueData} />
+                </div>
+
+                <div className="mb-30">
                     <div className="flex gap20 flex-wrap-mobile">
                         {data.statusCounts.length > 0 ? (
                             <TrafficSources trafficSourceData={statusDonut} />

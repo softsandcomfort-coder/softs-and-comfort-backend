@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { catalogClient } from "@/lib/sanity/client";
 import { createOrder, type OrderLine } from "@/lib/sanity/orders";
+import { validatePromoCode, incrementPromoUsage } from "@/lib/sanity/promo";
+import { corsHeaders, isOriginAllowed } from "@/lib/publicCors";
 
 /**
  * Public checkout endpoint — the one route the storefront may write through.
@@ -14,23 +16,8 @@ import { createOrder, type OrderLine } from "@/lib/sanity/orders";
  *  2. Only the configured storefront origin gets CORS access.
  */
 
-const ALLOWED_ORIGINS = (process.env.STOREFRONT_ORIGIN || "http://localhost:5173")
-    .split(",")
-    .map((o) => o.trim())
-    .filter(Boolean);
-
 const MAX_LINES = 50;
 const MAX_QTY_PER_LINE = 99;
-
-function corsHeaders(origin: string | null): Record<string, string> {
-    const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-    return {
-        "Access-Control-Allow-Origin": allowed,
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-        Vary: "Origin",
-    };
-}
 
 export async function OPTIONS(req: Request) {
     return new NextResponse(null, { status: 204, headers: corsHeaders(req.headers.get("origin")) });
@@ -42,7 +29,7 @@ export async function POST(req: Request) {
     const origin = req.headers.get("origin");
     const headers = corsHeaders(origin);
 
-    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    if (!isOriginAllowed(origin)) {
         return NextResponse.json({ message: "Origin not allowed" }, { status: 403, headers });
     }
 
@@ -51,13 +38,26 @@ export async function POST(req: Request) {
 
         const customerName = String(body.customerName || "").trim();
         const customerEmail = String(body.customerEmail || "").trim().toLowerCase();
+        const customerPhone = String(body.customerPhone || "").trim();
         const rawLines: IncomingLine[] = Array.isArray(body.lines) ? body.lines : [];
 
         if (!customerName) {
             return NextResponse.json({ message: "Name is required" }, { status: 400, headers });
         }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
-            return NextResponse.json({ message: "A valid email is required" }, { status: 400, headers });
+        // Phone is the required contact: orders are confirmed over WhatsApp and
+        // paid cash on delivery, so a number is what actually reaches a customer.
+        if (customerPhone.replace(/[^0-9]/g, "").length < 10) {
+            return NextResponse.json(
+                { message: "A valid phone number is required" },
+                { status: 400, headers }
+            );
+        }
+        // Email is optional, but must be valid when supplied.
+        if (customerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+            return NextResponse.json(
+                { message: "That email address isn't valid" },
+                { status: 400, headers }
+            );
         }
         if (rawLines.length === 0) {
             return NextResponse.json({ message: "Your cart is empty" }, { status: 400, headers });
@@ -114,10 +114,30 @@ export async function POST(req: Request) {
             };
         });
 
+        // Re-validate the promo code against the server-computed subtotal. The
+        // request says which code was typed, never what it is worth.
+        const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.qty, 0);
+        const rawPromo = String(body.promoCode || "").trim();
+        let discount = 0;
+        let appliedCode: string | null = null;
+        let promoId: string | null = null;
+
+        if (rawPromo) {
+            const promo = await validatePromoCode(rawPromo, subtotal);
+            if (!promo.ok) {
+                return NextResponse.json({ message: promo.reason }, { status: 400, headers });
+            }
+            discount = promo.discount;
+            appliedCode = promo.code;
+            promoId = promo.promoId;
+        }
+
         const order = await createOrder({
             customerName,
             customerEmail,
-            customerPhone: body.customerPhone ? String(body.customerPhone) : undefined,
+            customerPhone,
+            discount,
+            promoCode: appliedCode,
             shippingAddress:
                 body.shippingAddress && typeof body.shippingAddress === "object"
                     ? Object.fromEntries(
@@ -133,10 +153,18 @@ export async function POST(req: Request) {
             paymentMethod: body.paymentMethod ? String(body.paymentMethod) : "cod",
         });
 
+        // only counts a redemption once the order actually exists
+        if (promoId) await incrementPromoUsage(promoId);
+
         return NextResponse.json(
             {
                 message: "Order placed",
-                order: { orderNumber: order.orderNumber, total: order.total, status: order.status },
+                order: {
+                    orderNumber: order.orderNumber,
+                    total: order.total,
+                    discount: order.discount,
+                    status: order.status,
+                },
             },
             { status: 201, headers }
         );

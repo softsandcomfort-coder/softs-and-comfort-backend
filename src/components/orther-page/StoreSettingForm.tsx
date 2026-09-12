@@ -16,6 +16,7 @@ type Settings = {
     tagline: string;
     supportEmail: string;
     phone: string;
+    whatsappNumber: string;
     address: string;
     currency: string;
     currencySymbol: string;
@@ -29,6 +30,7 @@ const DEFAULTS: Settings = {
     tagline: "",
     supportEmail: "",
     phone: "",
+    whatsappNumber: "",
     address: "",
     currency: "PKR",
     currencySymbol: "Rs",
@@ -55,6 +57,7 @@ export default function StoreSettingForm() {
                     tagline: d.tagline ?? "",
                     supportEmail: d.supportEmail ?? "",
                     phone: d.phone ?? "",
+                    whatsappNumber: d.whatsappNumber ?? "",
                     address: d.address ?? "",
                     currency: d.currency ?? DEFAULTS.currency,
                     currencySymbol: d.currencySymbol ?? DEFAULTS.currencySymbol,
@@ -96,6 +99,8 @@ export default function StoreSettingForm() {
                     tagline: form.tagline.trim(),
                     supportEmail: form.supportEmail.trim(),
                     phone: form.phone.trim(),
+                    // digits only — the storefront builds wa.me links from this
+                    whatsappNumber: form.whatsappNumber.replace(/[^0-9]/g, ""),
                     address: form.address.trim(),
                     currency: form.currency.trim(),
                     currencySymbol: form.currencySymbol.trim(),
@@ -182,6 +187,20 @@ export default function StoreSettingForm() {
                         value={form.phone}
                         onChange={(e) => set("phone", e.target.value)}
                     />
+                </fieldset>
+
+                <fieldset className="mb-20">
+                    <div className="body-title mb-10">WhatsApp number</div>
+                    <input
+                        type="tel"
+                        placeholder="923001234567"
+                        value={form.whatsappNumber}
+                        onChange={(e) => set("whatsappNumber", e.target.value)}
+                    />
+                    <div className="text-tiny mt-10">
+                        Country code first, digits only — no +, spaces or dashes. Every contact
+                        link on the storefront opens a WhatsApp chat with this number.
+                    </div>
                 </fieldset>
 
                 <fieldset>

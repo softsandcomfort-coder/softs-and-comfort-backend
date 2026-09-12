@@ -11,6 +11,16 @@ export const siteSettings = defineType({
         defineField({ name: 'supportEmail', title: 'Support email', type: 'string' }),
         defineField({ name: 'phone', title: 'Phone', type: 'string' }),
         defineField({ name: 'address', title: 'Address', type: 'text', rows: 3 }),
+        defineField({
+            name: 'whatsappNumber',
+            title: 'WhatsApp number',
+            type: 'string',
+            description: 'International format without + or spaces, e.g. 923001234567. Used for every contact link on the storefront.',
+            validation: (Rule) =>
+                Rule.regex(/^[0-9]{8,15}$/, { name: 'whatsapp number' }).warning(
+                    'Digits only, including the country code — no +, spaces or dashes'
+                ),
+        }),
         defineField({ name: 'currency', title: 'Currency code', type: 'string', initialValue: 'PKR' }),
         defineField({ name: 'currencySymbol', title: 'Currency symbol', type: 'string', initialValue: 'Rs' }),
         defineField({

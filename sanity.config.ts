@@ -44,6 +44,12 @@ export default defineConfig([
                             S.listItem()
                                 .title('Attributes')
                                 .child(S.documentTypeList('attribute').title('Attributes')),
+                            S.listItem()
+                                .title('Promo codes')
+                                .child(S.documentTypeList('promoCode').title('Promo codes')),
+                            S.listItem()
+                                .title('Policies')
+                                .child(S.documentTypeList('policy').title('Policies')),
                             S.divider(),
                             // Singleton: always edit the same document id.
                             S.listItem()

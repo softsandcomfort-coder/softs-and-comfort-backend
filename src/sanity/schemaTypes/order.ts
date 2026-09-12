@@ -85,6 +85,8 @@ export const order = defineType({
         }),
         defineField({ name: 'subtotal', title: 'Subtotal', type: 'number' }),
         defineField({ name: 'shippingCost', title: 'Shipping', type: 'number', initialValue: 0 }),
+        defineField({ name: 'discount', title: 'Discount', type: 'number', initialValue: 0 }),
+        defineField({ name: 'promoCode', title: 'Promo code used', type: 'string' }),
         defineField({ name: 'total', title: 'Total', type: 'number' }),
         defineField({
             name: 'paymentMethod',

@@ -4,6 +4,8 @@ import { category } from './category'
 import { product } from './product'
 import { productColor } from './productColor'
 import { siteSettings, attribute } from './settings'
+import { promoCode } from './promoCode'
+import { policy } from './policy'
 import { adminUser, passwordResetToken } from './adminUser'
 import { order, orderObjects } from './order'
 
@@ -18,6 +20,8 @@ export const catalogSchemaTypes: SchemaTypeDefinition[] = [
     productColor,
     attribute,
     siteSettings,
+    promoCode,
+    policy,
 ]
 
 /**
@@ -32,6 +36,8 @@ export const adminSchemaTypes: SchemaTypeDefinition[] = [
 ]
 
 export {
+    promoCode,
+    policy,
     product,
     category,
     productColor,

@@ -36,6 +36,8 @@ const COLOR_PRESETS = [
 
 type Category = { _id: string; name: string };
 type ImageAsset = { assetId: string; url: string };
+/** A file chosen but not yet uploaded — previewed from a local object URL. */
+type PendingImage = { id: string; file: File; url: string };
 type ColorValue = { name: string; hex: string };
 
 type ProductFormProps = {
@@ -68,6 +70,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     const [sizes, setSizes] = useState<string[]>([]);
     const [colors, setColors] = useState<ColorValue[]>([]);
     const [images, setImages] = useState<ImageAsset[]>([]);
+    const [pending, setPending] = useState<PendingImage[]>([]);
 
     // categories for the picker
     useEffect(() => {
@@ -118,31 +121,71 @@ export default function ProductForm({ productId }: ProductFormProps) {
         };
     }, [productId]);
 
-    const handleFileChange = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    /**
+     * Selecting files only previews them. Nothing reaches Sanity until Upload is
+     * pressed, so discarding a wrong photo costs nothing and does not leave an
+     * orphaned asset behind.
+     */
+    const handleFileChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
 
+        setError(null);
+        setPending((prev) => [
+            ...prev,
+            ...files.map((file) => ({
+                id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
+                file,
+                url: URL.createObjectURL(file),
+            })),
+        ]);
+        e.target.value = "";   // allow re-selecting the same file
+    }, []);
+
+    const removePending = (id: string) =>
+        setPending((prev) => {
+            const match = prev.find((p) => p.id === id);
+            if (match) URL.revokeObjectURL(match.url);   // don't leak the blob
+            return prev.filter((p) => p.id !== id);
+        });
+
+    async function uploadPending() {
+        if (pending.length === 0) return;
         setUploading(true);
         setError(null);
         try {
             const body = new FormData();
-            files.forEach((f) => body.append("file", f));
+            pending.forEach((p) => body.append("file", p.file));
 
             const res = await fetch("/api/upload", { method: "POST", body });
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Upload failed");
 
             setImages((prev) => [...prev, ...(data.assets as ImageAsset[])]);
+            pending.forEach((p) => URL.revokeObjectURL(p.url));
+            setPending([]);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Upload failed");
         } finally {
             setUploading(false);
-            e.target.value = "";   // allow re-selecting the same file
         }
-    }, []);
+    }
 
     const removeImage = (assetId: string) =>
         setImages((prev) => prev.filter((i) => i.assetId !== assetId));
+
+    async function generateSku() {
+        setError(null);
+        try {
+            const params = categoryId ? `?categoryId=${encodeURIComponent(categoryId)}` : "";
+            const res = await fetch(`/api/products/sku${params}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Could not generate an SKU");
+            setSku(data.sku);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Could not generate an SKU");
+        }
+    }
 
     const toggleSize = (size: string) =>
         setSizes((prev) => (prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]));
@@ -162,6 +205,9 @@ export default function ProductForm({ productId }: ProductFormProps) {
         if (!title.trim()) return setError("Product title is required");
         if (!price.trim() || Number.isNaN(Number(price))) return setError("A valid price is required");
         if (!categoryId) return setError("Choose a category");
+        if (pending.length > 0) {
+            return setError("Upload the selected images first, or remove them");
+        }
         if (images.length === 0) return setError("Add at least one product image");
         if (salePrice && Number(salePrice) >= Number(price)) {
             return setError("Sale price must be lower than the regular price");
@@ -239,14 +285,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
                                     <i className="icon-upload-cloud"></i>
                                 </span>
                                 <span className="text-tiny">
-                                    {uploading ? (
-                                        "Uploading…"
-                                    ) : (
-                                        <>
-                                            Drop your images here or{" "}
-                                            <span className="text-secondary">click to browse</span>
-                                        </>
-                                    )}
+                                    Drop your images here or{" "}
+                                    <span className="text-secondary">click to browse</span>
                                 </span>
                                 <input
                                     type="file"
@@ -258,6 +298,76 @@ export default function ProductForm({ productId }: ProductFormProps) {
                                 />
                             </label>
                         </div>
+
+                        {pending.length > 0 && (
+                            <div className="w-full mb-16">
+                                <div className="flex items-center justify-between gap10 flex-wrap mb-10">
+                                    <div className="body-title-2">
+                                        {pending.length} image{pending.length > 1 ? "s" : ""} ready to upload
+                                    </div>
+                                    <div className="flex gap10">
+                                        <button
+                                            type="button"
+                                            className="tf-button"
+                                            onClick={uploadPending}
+                                            disabled={uploading}
+                                        >
+                                            {uploading ? "Uploading…" : `Upload ${pending.length}`}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="tf-button style-3"
+                                            onClick={() => pending.forEach((img) => removePending(img.id))}
+                                            disabled={uploading}
+                                        >
+                                            Discard
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="flex gap20 flex-wrap">
+                                    {pending.map((img) => (
+                                        <div
+                                            className="item"
+                                            key={img.id}
+                                            style={{ position: "relative", opacity: uploading ? 0.6 : 1 }}
+                                        >
+                                            {/* a local blob URL, which next/image cannot optimise */}
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img
+                                                src={img.url}
+                                                alt={img.file.name}
+                                                width={237}
+                                                height={207}
+                                                style={{ objectFit: "cover", borderRadius: 8 }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removePending(img.id)}
+                                                aria-label={`Remove ${img.file.name}`}
+                                                disabled={uploading}
+                                                style={{
+                                                    position: "absolute", top: 6, right: 6,
+                                                    background: "rgba(0,0,0,.6)", color: "#fff",
+                                                    border: 0, borderRadius: 4, cursor: "pointer",
+                                                    width: 24, height: 24, lineHeight: "24px",
+                                                }}
+                                            >
+                                                ×
+                                            </button>
+                                            <span
+                                                style={{
+                                                    position: "absolute", bottom: 6, left: 6,
+                                                    background: "rgba(0,0,0,.6)", color: "#fff",
+                                                    borderRadius: 4, fontSize: 11, padding: "2px 6px",
+                                                }}
+                                            >
+                                                Not uploaded
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="flex gap20 flex-wrap">
                             {images.map((img, index) => (
@@ -393,12 +503,22 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
                     <fieldset>
                         <div className="body-title mb-10">SKU</div>
-                        <input
-                            type="text"
-                            placeholder="VF-BRA-001"
-                            value={sku}
-                            onChange={(e) => setSku(e.target.value)}
-                        />
+                        <div className="flex gap10">
+                            <input
+                                type="text"
+                                placeholder="VF-BRA-0001"
+                                value={sku}
+                                onChange={(e) => setSku(e.target.value)}
+                                style={{ flex: 1 }}
+                            />
+                            <button type="button" className="tf-button style-3" onClick={generateSku}>
+                                Generate
+                            </button>
+                        </div>
+                        <div className="text-tiny mt-10">
+                            Built from the category and checked against existing products so it is
+                            unique. You can still type your own.
+                        </div>
                     </fieldset>
                 </div>
 

@@ -31,6 +31,10 @@ export type Order = {
     lines: OrderLine[];
     subtotal: number;
     shippingCost: number;
+    /** Promo discount applied, in PKR. */
+    discount: number;
+    /** The code that produced it, kept for the record. */
+    promoCode: string | null;
     total: number;
     paymentMethod: string | null;
     createdAt: string;
@@ -41,7 +45,8 @@ const ORDER_PROJECTION = `{
     customerName, customerEmail, customerPhone,
     shippingAddress, notes,
     lines[]{ productId, title, image, unitPrice, qty, size, color },
-    subtotal, shippingCost, total, paymentMethod, createdAt
+    subtotal, shippingCost, "discount": coalesce(discount, 0), promoCode,
+    total, paymentMethod, createdAt
 }`;
 
 export async function listOrders(): Promise<Order[]> {
@@ -82,6 +87,9 @@ export type CreateOrderInput = {
     notes?: string;
     lines: OrderLine[];
     shippingCost?: number;
+    /** Already validated and computed server-side by validatePromoCode. */
+    discount?: number;
+    promoCode?: string | null;
     paymentMethod?: string;
 };
 
@@ -90,6 +98,8 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
     // a client-supplied total is a client-supplied discount.
     const subtotal = input.lines.reduce((sum, l) => sum + l.unitPrice * l.qty, 0);
     const shippingCost = input.shippingCost ?? 0;
+    // clamped so a discount can never exceed the goods or make the total negative
+    const discount = Math.max(0, Math.min(input.discount ?? 0, subtotal));
 
     const doc = await adminClient().create({
         _type: "order",
@@ -109,7 +119,9 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
         })),
         subtotal,
         shippingCost,
-        total: subtotal + shippingCost,
+        discount,
+        promoCode: input.promoCode ?? null,
+        total: subtotal - discount + shippingCost,
         paymentMethod: input.paymentMethod ?? "cod",
         createdAt: new Date().toISOString(),
     });
