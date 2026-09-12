@@ -1,0 +1,40 @@
+import { NextResponse } from "next/server";
+import { findUserByEmail, createResetToken } from "@/lib/auth";
+import { sendPasswordResetEmail } from "@/lib/mailer";
+
+export async function POST(req: Request) {
+    try {
+        const body = await req.json();
+        const email = String(body.email || "").trim().toLowerCase();
+
+        // Always the same response, so this cannot be used to discover which
+        // email addresses have accounts.
+        const genericOk = NextResponse.json(
+            { message: "If the email exists, a reset link will be sent." },
+            { status: 200 }
+        );
+
+        if (!email) return genericOk;
+
+        const user = await findUserByEmail(email);
+        if (!user || user.active === false) return genericOk;
+
+        const rawToken = await createResetToken(user._id);
+
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+        const resetLink = `${appUrl}/reset-password?token=${rawToken}`;
+
+        try {
+            await sendPasswordResetEmail(email, resetLink);
+        } catch (mailError) {
+            // SMTP is optional in development — log the link so the flow is still testable
+            console.error("MAIL_ERROR", mailError);
+            console.log("RESET LINK (mail failed):", resetLink);
+        }
+
+        return genericOk;
+    } catch (error) {
+        console.error("FORGOT_PASSWORD_ERROR", error);
+        return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    }
+}
