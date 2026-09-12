@@ -1,5 +1,6 @@
 import "server-only";
 import { adminClient } from "./client";
+import { decrementStock, restoreStock } from "./stock";
 
 /**
  * Orders live in the PRIVATE `admin` dataset — they carry customer names,
@@ -58,7 +59,28 @@ export async function getOrder(id: string): Promise<Order | null> {
 }
 
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<void> {
+    // The stock movement depends on what the status was, so read it first.
+    const before = await getOrder(id);
+    if (!before) throw new Error("Order not found");
+    if (before.status === status) return;
+
     await adminClient().patch(id).set({ status }).commit();
+
+    const lines = (before.lines ?? []).map((l) => ({ productId: l.productId, qty: l.qty }));
+    const wasCancelled = before.status === "cancelled";
+    const nowCancelled = status === "cancelled";
+
+    try {
+        if (!wasCancelled && nowCancelled) {
+            // cancelling puts the goods back on the shelf
+            await restoreStock(lines);
+        } else if (wasCancelled && !nowCancelled) {
+            // reinstating an order takes them off it again
+            await decrementStock(lines);
+        }
+    } catch (error) {
+        console.error("STOCK_ADJUST_ON_STATUS_ERROR", id, error);
+    }
 }
 
 export async function deleteOrder(id: string): Promise<void> {
@@ -125,6 +147,15 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
         paymentMethod: input.paymentMethod ?? "cod",
         createdAt: new Date().toISOString(),
     });
+
+    // Availability was confirmed before we got here; this applies the movement.
+    // A failure must not lose the order — the order is the record of truth and
+    // stock can be corrected by hand, so it is logged rather than thrown.
+    try {
+        await decrementStock(input.lines.map((l) => ({ productId: l.productId, qty: l.qty })));
+    } catch (error) {
+        console.error("STOCK_DECREMENT_ERROR", doc._id, error);
+    }
 
     return (await getOrder(doc._id)) as Order;
 }

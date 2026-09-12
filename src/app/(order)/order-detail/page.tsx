@@ -2,6 +2,7 @@ import Layout from "@/components/layout/Layout";
 import EmptyState from "@/components/common/EmptyState";
 import OrderDetailView from "@/components/order/OrderDetailView";
 import { getOrder } from "@/lib/sanity/orders";
+import { getStoreSettings } from "@/lib/sanity/catalog";
 import { isSanityConfigured } from "@/lib/sanity/client";
 import Link from "next/link";
 
@@ -73,7 +74,7 @@ export default async function OrderDetailPage({
     }
 
     try {
-        const order = await getOrder(id);
+        const [order, settings] = await Promise.all([getOrder(id), getStoreSettings().catch(() => ({}))]);
         if (!order) {
             return (
                 <Layout>
@@ -91,7 +92,7 @@ export default async function OrderDetailPage({
         return (
             <Layout>
                 {breadcrumbs}
-                <OrderDetailView order={order} />
+                <OrderDetailView order={order} storeName={(settings as { storeName?: string }).storeName || "Velorra Fashion"} />
             </Layout>
         );
     } catch (error) {

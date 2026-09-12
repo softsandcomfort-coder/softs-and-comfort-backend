@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Order, OrderStatus } from "@/lib/sanity/orders";
+import { ownerWhatsAppText, whatsAppLink } from "@/lib/orderMessage";
 
 /**
  * Real order detail.
@@ -37,7 +38,13 @@ function formatAddress(address: Record<string, string> | null): string[] {
         .filter(Boolean);
 }
 
-export default function OrderDetailView({ order }: { order: Order }) {
+export default function OrderDetailView({
+    order,
+    storeName = "Velorra Fashion",
+}: {
+    order: Order;
+    storeName?: string;
+}) {
     const router = useRouter();
     const [status, setStatus] = useState<OrderStatus>(order.status);
     const [saving, setSaving] = useState(false);
@@ -67,6 +74,11 @@ export default function OrderDetailView({ order }: { order: Order }) {
             setSaving(false);
         }
     }
+
+    // Click-to-chat with the confirmation pre-written. Automated sending needs
+    // the WhatsApp Business API; this needs nothing and reaches the customer on
+    // the channel the store actually runs on.
+    const whatsappUrl = whatsAppLink(order.customerPhone, ownerWhatsAppText(order, storeName));
 
     const addressLines = formatAddress(order.shippingAddress);
     const itemCount = (order.lines ?? []).reduce((n, l) => n + (l.qty ?? 0), 0);
@@ -193,6 +205,21 @@ export default function OrderDetailView({ order }: { order: Order }) {
                         <a className="body-text" href={`tel:${order.customerPhone}`}>
                             {order.customerPhone}
                         </a>
+                    )}
+                    {whatsappUrl ? (
+                        <a
+                            className="tf-button w-full mt-10"
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ background: "#25D366" }}
+                        >
+                            Message on WhatsApp
+                        </a>
+                    ) : (
+                        <div className="text-tiny" style={{ opacity: 0.7 }}>
+                            No usable phone number on this order.
+                        </div>
                     )}
                 </div>
 

@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { catalogClient } from "@/lib/sanity/client";
 import { createOrder, type OrderLine } from "@/lib/sanity/orders";
 import { validatePromoCode, incrementPromoUsage } from "@/lib/sanity/promo";
+import { checkStock } from "@/lib/sanity/stock";
 import { corsHeaders, isOriginAllowed } from "@/lib/publicCors";
+import { sendOrderConfirmationEmail, isMailConfigured } from "@/lib/mailer";
+import { customerWhatsAppText, whatsAppLink } from "@/lib/orderMessage";
+import { getStoreSettings } from "@/lib/sanity/catalog";
 
 /**
  * Public checkout endpoint — the one route the storefront may write through.
@@ -114,6 +118,18 @@ export async function POST(req: Request) {
             };
         });
 
+        // Refuse to oversell. Checked here rather than trusted from the cart,
+        // which may have been sitting in a browser since before the last sale.
+        const stock = await checkStock(
+            lines.map((l) => ({ productId: l.productId, qty: l.qty }))
+        );
+        if (!stock.ok) {
+            return NextResponse.json(
+                { message: stock.message, shortfalls: stock.shortfalls },
+                { status: 409, headers }
+            );
+        }
+
         // Re-validate the promo code against the server-computed subtotal. The
         // request says which code was typed, never what it is worth.
         const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.qty, 0);
@@ -156,6 +172,30 @@ export async function POST(req: Request) {
         // only counts a redemption once the order actually exists
         if (promoId) await incrementPromoUsage(promoId);
 
+        const settings = (await getStoreSettings().catch(() => ({}))) as {
+            storeName?: string;
+            whatsappNumber?: string;
+        };
+        const storeName = settings.storeName || "Velorra Fashion";
+
+        // Courtesy email. Best-effort by design: the order already exists, so a
+        // missing SMTP config or a bounced send must not fail the request.
+        if (customerEmail && isMailConfigured()) {
+            try {
+                await sendOrderConfirmationEmail(customerEmail, order, storeName);
+            } catch (mailError) {
+                console.error("ORDER_CONFIRMATION_MAIL_ERROR", order.orderNumber, mailError);
+            }
+        }
+
+        // One-tap WhatsApp confirmation for the customer. Automated sending would
+        // need the WhatsApp Business API; a pre-filled click-to-chat link needs
+        // nothing and reaches the channel this store actually runs on.
+        const whatsappUrl = whatsAppLink(
+            settings.whatsappNumber,
+            customerWhatsAppText(order, storeName)
+        );
+
         return NextResponse.json(
             {
                 message: "Order placed",
@@ -165,6 +205,8 @@ export async function POST(req: Request) {
                     discount: order.discount,
                     status: order.status,
                 },
+                whatsappUrl,
+                emailSent: Boolean(customerEmail && isMailConfigured()),
             },
             { status: 201, headers }
         );
