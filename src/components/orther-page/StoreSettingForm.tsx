@@ -174,7 +174,7 @@ export default function StoreSettingForm() {
                     <div className="body-title mb-10">Support email</div>
                     <input
                         type="email"
-                        placeholder="support@velorrafashion.com"
+                        placeholder="support@softandcomfort.com"
                         value={form.supportEmail}
                         onChange={(e) => set("supportEmail", e.target.value)}
                     />
@@ -269,7 +269,7 @@ export default function StoreSettingForm() {
                         </div>
                         <input
                             type="url"
-                            placeholder={`https://${key}.com/velorrafashion`}
+                            placeholder={`https://${key}.com/softandcomfort`}
                             value={form.social[key]}
                             onChange={(e) => set("social", { ...form.social, [key]: e.target.value })}
                         />
