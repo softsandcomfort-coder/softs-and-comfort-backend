@@ -16,11 +16,11 @@ export default function Sidebar({ handleSidebar }: SidebarProps) {
                         <Image
                             id="logo_header"
                             alt="Soft & Comfort"
-                            src="/images/logo/logo.svg"
+                            src="/images/logo/logo.png"
                             width={154}
-                            height={52}
-                            data-light="/images/logo/logo.svg"
-                            data-dark="/images/logo/logo-white.svg"
+                            height={58}
+                            data-light="/images/logo/logo.png"
+                            data-dark="/images/logo/logo-white.png"
                             priority
                         />
                     </Link>

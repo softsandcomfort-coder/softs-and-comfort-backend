@@ -81,11 +81,11 @@ export default function Header1({
                         <Image
                             id="logo_header_mobile"
                             alt="Soft & Comfort"
-                            src="/images/logo/logo.svg"
+                            src="/images/logo/logo.png"
                             width={154}
-                            height={52}
-                            data-light="/images/logo/logo.svg"
-                            data-dark="/images/logo/logo-white.svg"
+                            height={58}
+                            data-light="/images/logo/logo.png"
+                            data-dark="/images/logo/logo-white.png"
                             priority
                         />
                     </Link>

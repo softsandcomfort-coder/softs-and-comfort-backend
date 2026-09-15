@@ -5,8 +5,8 @@ type ThemeSwitchProps = {
     radioBtn?: boolean;
 };
 
-const lightLogo = "/images/logo/logo.svg";
-const darkLogo = "/images/logo/logo-white.svg";
+const lightLogo = "/images/logo/logo.png";
+const darkLogo = "/images/logo/logo-white.png";
 
 const setLogoSrc = (id: string, src: string) => {
     const el = document.getElementById(id) as HTMLImageElement | null;
