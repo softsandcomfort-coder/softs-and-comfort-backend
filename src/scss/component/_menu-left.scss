@@ -314,3 +314,14 @@
         }
     }
 }
+// Brand logo sizing.
+// A global `img { width: 100% }` stretched the logo to the full sidebar column,
+// which pushed it over the first menu item. The lockup is ~2.2:1, so fix the
+// height and let the width follow.
+#logo_header,
+#logo_header_mobile {
+    width: auto !important;
+    height: 52px !important;
+    max-width: 150px;
+    object-fit: contain;
+}
