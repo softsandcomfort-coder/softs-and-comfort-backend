@@ -506,7 +506,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                         <div className="flex gap10">
                             <input
                                 type="text"
-                                placeholder="VF-BRA-0001"
+                                placeholder="SC-BRA-0001"
                                 value={sku}
                                 onChange={(e) => setSku(e.target.value)}
                                 style={{ flex: 1 }}

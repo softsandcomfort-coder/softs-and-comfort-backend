@@ -30,7 +30,7 @@ export default async function OrderListPage() {
                 image: o.lines?.[0]?.image || "/images/products/1.png",
                 price: money(o.total),
                 quantity: (o.lines ?? []).reduce((n, l) => n + (l.qty ?? 0), 0),
-                payment: o.total,
+                payment: o.paymentMethod === "bank" ? "Bank transfer" : "Cash on delivery",
                 status: titleCase(o.status),
                 category: o.paymentMethod ?? "cod",
             }));

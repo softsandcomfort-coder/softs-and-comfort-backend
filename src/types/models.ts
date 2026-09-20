@@ -44,7 +44,7 @@ export type Product = {
     sale?: number;
     stock?: string;
     startDate?: string;
-    payment?: number;
+    payment?: number | string;
 };
 
 export type Attribute = {

@@ -220,11 +220,6 @@ export default function TrafficSources({ trafficSourceData }: TrafficSourcesProp
         </div>
       </div>
 
-      <div className="block-warning w-full">
-        <i className="icon-alert-octagon"></i>
-        <div>Traffics channels have been generating the most traffics over past day</div>
-      </div>
-
       <div className="donut-wrap style-1">
         <div className="morris-donut" ref={donutRef}></div>
 
@@ -261,28 +256,15 @@ export default function TrafficSources({ trafficSourceData }: TrafficSourcesProp
         </div>
       </div>
 
-      <div>
-        <div className="flex gap15 justify-center flex-wrap mb-14">
-          <div className="block-legend style-1">
-            <div className="dot t4"></div>
-            <div className="body-text">Organic Search</div>
+      <div className="flex gap15 justify-center flex-wrap">
+        {segments.map((s) => (
+          <div className="block-legend style-1" key={s.key}>
+            <div className="dot" style={{ background: s.color }}></div>
+            <div className="body-text">
+              {s.title} ({s.valueText})
+            </div>
           </div>
-          <div className="block-legend style-1">
-            <div className="dot t2"></div>
-            <div className="body-text">Referrals</div>
-          </div>
-        </div>
-
-        <div className="flex gap15 justify-center flex-wrap">
-          <div className="block-legend style-1">
-            <div className="dot t1"></div>
-            <div className="body-text">Social media</div>
-          </div>
-          <div className="block-legend style-1">
-            <div className="dot t3"></div>
-            <div className="body-text">Other</div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

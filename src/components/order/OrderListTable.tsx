@@ -26,7 +26,7 @@ export default function OrderListTable({
     const [list, setList] = useState<Product[]>(ProductItem);
     const [entries, setEntries] = useState("10");
     const [search, setSearch] = useState("");
-    const [category, setCategory] = useState("All Categories");
+    const [category, setCategory] = useState("All Payments");
     const [status, setStatus] = useState("All Status");
     const [sortBy, setSortBy] = useState("Sort by (Defaut)");
     const [currentPage, setCurrentPage] = useState(1);
@@ -50,7 +50,7 @@ export default function OrderListTable({
             );
         }
 
-        if (category !== "All Categories") {
+        if (category !== "All Payments") {
             result = result.filter((item) => item.category === category);
         }
 
@@ -191,10 +191,9 @@ export default function OrderListTable({
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
                             >
-                                <option>All Categories</option>
-                                <option>cod</option>
-                                <option>bank</option>
-                                <option>card</option>
+                                <option>All Payments</option>
+                                <option value="cod">Cash on delivery</option>
+                                <option value="bank">Bank transfer</option>
                             </select>
                         </div>
 
@@ -230,7 +229,7 @@ export default function OrderListTable({
                 <div className="wg-table table-all-order">
                     <ul className="table-title bg-dark-1 flex gap20 mb-14">
                         <li>
-                            <div className="body-title">Product</div>
+                            <div className="body-title">Customer</div>
                         </li>
                         <li>
                             <div className="body-title">Order ID</div>

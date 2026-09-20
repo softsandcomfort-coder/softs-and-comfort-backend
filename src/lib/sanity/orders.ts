@@ -87,7 +87,7 @@ export async function deleteOrder(id: string): Promise<void> {
     await adminClient().delete(id);
 }
 
-/** VF-YYMMDD-XXXX — readable, sortable, and unique enough for a small store. */
+/** SC-YYMMDD-XXXX — readable, sortable, and unique enough for a small store. */
 function generateOrderNumber(): string {
     const now = new Date();
     const stamp = [
@@ -98,7 +98,7 @@ function generateOrderNumber(): string {
     const random = Math.floor(Math.random() * 10000)
         .toString()
         .padStart(4, "0");
-    return `VF-${stamp}-${random}`;
+    return `SC-${stamp}-${random}`;
 }
 
 export type CreateOrderInput = {

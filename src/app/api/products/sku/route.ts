@@ -4,7 +4,7 @@ import { can } from "@/lib/session";
 import { catalogClient } from "@/lib/sanity/client";
 
 /**
- * Generates the next free SKU: VF-<CAT>-<0001>.
+ * Generates the next free SKU: SC-<CAT>-<0001>.
  *
  * The sequence comes from the highest number already in use for that prefix
  * rather than a product count, so deleting a product never causes a new one to
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
               )
             : null;
 
-        const prefix = `VF-${prefixFor(categoryName)}`;
+        const prefix = `SC-${prefixFor(categoryName)}`;
 
         // every SKU already using this prefix
         const existing = await catalogClient().fetch<string[]>(

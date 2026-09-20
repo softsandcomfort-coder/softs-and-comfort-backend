@@ -186,7 +186,7 @@
     }
     &.table-all-order {
         > * {
-            min-width: 1492px;
+            min-width: 1160px;
         }
         .wg-product,
         ul.table-title {
@@ -195,11 +195,11 @@
             >* {
                 width: 100%;
                 &:nth-child(1) {
-                    width: 390px;
+                    width: 260px;
                     flex-shrink: 0;
                 }
                 &:last-child {
-                    width: 110px;
+                    width: 140px;
                     flex-shrink: 0;
                 }
             }
