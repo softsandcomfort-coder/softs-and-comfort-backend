@@ -8,6 +8,12 @@ export const siteSettings = defineType({
     fields: [
         defineField({ name: 'storeName', title: 'Store name', type: 'string', initialValue: 'Soft & Comfort' }),
         defineField({ name: 'tagline', title: 'Tagline', type: 'string' }),
+        defineField({
+            name: 'announcement',
+            title: 'Announcement bar',
+            type: 'string',
+            description: 'One line shown across the top of every storefront page. Leave empty to hide the bar.',
+        }),
         defineField({ name: 'supportEmail', title: 'Support email', type: 'string' }),
         defineField({ name: 'phone', title: 'Phone', type: 'string' }),
         defineField({ name: 'address', title: 'Address', type: 'text', rows: 3 }),

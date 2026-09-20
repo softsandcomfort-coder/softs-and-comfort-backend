@@ -14,6 +14,7 @@ import { FormEvent, useEffect, useState } from "react";
 type Settings = {
     storeName: string;
     tagline: string;
+    announcement: string;
     supportEmail: string;
     phone: string;
     whatsappNumber: string;
@@ -28,6 +29,7 @@ type Settings = {
 const DEFAULTS: Settings = {
     storeName: "Soft & Comfort",
     tagline: "",
+    announcement: "",
     supportEmail: "",
     phone: "",
     whatsappNumber: "",
@@ -55,6 +57,7 @@ export default function StoreSettingForm() {
                 setForm({
                     storeName: d.storeName ?? DEFAULTS.storeName,
                     tagline: d.tagline ?? "",
+                    announcement: d.announcement ?? "",
                     supportEmail: d.supportEmail ?? "",
                     phone: d.phone ?? "",
                     whatsappNumber: d.whatsappNumber ?? "",
@@ -97,6 +100,7 @@ export default function StoreSettingForm() {
                 body: JSON.stringify({
                     storeName: form.storeName.trim(),
                     tagline: form.tagline.trim(),
+                    announcement: form.announcement.trim(),
                     supportEmail: form.supportEmail.trim(),
                     phone: form.phone.trim(),
                     // digits only — the storefront builds wa.me links from this
@@ -168,6 +172,19 @@ export default function StoreSettingForm() {
                         value={form.tagline}
                         onChange={(e) => set("tagline", e.target.value)}
                     />
+                </fieldset>
+
+                <fieldset className="mb-20">
+                    <div className="body-title mb-10">Announcement bar</div>
+                    <input
+                        type="text"
+                        placeholder="Cash on delivery across Pakistan"
+                        value={form.announcement}
+                        onChange={(e) => set("announcement", e.target.value)}
+                    />
+                    <div className="text-tiny mt-10">
+                        One line across the top of every storefront page. Leave empty to hide it.
+                    </div>
                 </fieldset>
 
                 <fieldset className="mb-20">
