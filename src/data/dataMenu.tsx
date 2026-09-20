@@ -53,6 +53,14 @@ export const dataMenu = [
                 children: [],
             },
             {
+                key: "reviews",
+                title: "Reviews",
+                icon: "icon-star",
+                iconSvg: null,
+                path: "/reviews",
+                children: [],
+            },
+            {
                 key: "policies",
                 title: "Policies",
                 icon: "icon-file-text",

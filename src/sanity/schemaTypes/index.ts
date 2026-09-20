@@ -6,6 +6,7 @@ import { productColor } from './productColor'
 import { siteSettings, attribute } from './settings'
 import { promoCode } from './promoCode'
 import { policy } from './policy'
+import { review } from './review'
 import { adminUser, passwordResetToken } from './adminUser'
 import { order, orderObjects } from './order'
 
@@ -22,6 +23,7 @@ export const catalogSchemaTypes: SchemaTypeDefinition[] = [
     siteSettings,
     promoCode,
     policy,
+    review,
 ]
 
 /**
@@ -38,6 +40,7 @@ export const adminSchemaTypes: SchemaTypeDefinition[] = [
 export {
     promoCode,
     policy,
+    review,
     product,
     category,
     productColor,
