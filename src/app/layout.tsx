@@ -18,7 +18,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en">
             <ClientBootstrap />
-            <body className={albertSans.variable}>{children}</body>
+            {/*
+              * Browser extensions (ColorZilla, Grammarly, password managers…)
+              * add attributes to <body> before React hydrates, which otherwise
+              * logs a hydration mismatch the app cannot do anything about.
+              */}
+            <body className={albertSans.variable} suppressHydrationWarning>
+                {children}
+            </body>
         </html>
     );
 }
