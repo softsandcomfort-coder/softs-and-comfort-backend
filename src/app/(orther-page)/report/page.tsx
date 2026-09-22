@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import RevenueChart3 from "@/components/chart/RevenueChart3";
 import TopCustomers from "@/components/widgets/TopCustomers";
@@ -34,6 +35,8 @@ const shortDate = (iso: string | null | undefined) => {
  * replaced with the real equivalents this store can actually measure.
  */
 export default async function ReportPage() {
+    await requirePermission("orders");
+
     if (!isSanityConfigured) {
         return (
             <Layout>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession, getCurrentUser, updateUserPassword, findUserByEmail } from "@/lib/auth";
+import { requireSession, getCurrentUser, updateUserPassword, findUserByEmail } from "@/lib/auth";
 import { adminClient } from "@/lib/sanity/client";
 
 /**
@@ -20,7 +20,7 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-    const session = await getSession();
+    const session = await requireSession();
     if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     try {

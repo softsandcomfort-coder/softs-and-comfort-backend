@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import UserListClient from "@/components/user/UserListClient";
 import EmptyState from "@/components/common/EmptyState";
 import type { UserRow } from "@/components/user/UserListTable";
@@ -14,6 +15,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AllUserPage() {
+    await requirePermission("users");
+
     let rows: UserRow[] = [];
     let currentUserId: string | undefined;
     let loadError: string | null = null;

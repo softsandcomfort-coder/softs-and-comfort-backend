@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { can } from "@/lib/session";
 import { getStoreSettings, saveStoreSettings } from "@/lib/sanity/catalog";
 
@@ -9,7 +9,7 @@ import { getStoreSettings, saveStoreSettings } from "@/lib/sanity/catalog";
  * shipping thresholds) without a token.
  */
 async function guard() {
-    const session = await getSession();
+    const session = await requireSession();
     if (!can(session, "settings")) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }

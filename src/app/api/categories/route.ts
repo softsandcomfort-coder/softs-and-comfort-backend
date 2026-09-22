@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { can } from "@/lib/session";
 import { listCategories, createCategory, updateCategory, deleteCategory } from "@/lib/sanity/catalog";
 
 async function guard() {
-    const session = await getSession();
+    const session = await requireSession();
     if (!can(session, "categories")) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }

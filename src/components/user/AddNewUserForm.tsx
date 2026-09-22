@@ -18,6 +18,7 @@ const PERMISSIONS = [
     { key: "products", label: "Products", hint: "Create, edit and delete products and attributes" },
     { key: "categories", label: "Categories", hint: "Create, edit and delete categories" },
     { key: "orders", label: "Orders", hint: "View orders and change their status" },
+    { key: "marketing", label: "Promo codes & reviews", hint: "Create discount codes and publish customer reviews" },
     { key: "users", label: "Users", hint: "Create and remove dashboard accounts" },
     { key: "settings", label: "Store settings", hint: "Edit store details, currency and shipping" },
 ] as const;

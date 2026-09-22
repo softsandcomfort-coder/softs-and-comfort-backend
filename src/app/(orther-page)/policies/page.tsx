@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import PolicyManager from "@/components/policies/PolicyManager";
 import { listPolicies, type Policy } from "@/lib/sanity/policies";
@@ -13,6 +14,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function PoliciesPage() {
+    await requirePermission("settings");
+
     let policies: Policy[] = [];
     let loadError: string | null = null;
 

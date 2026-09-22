@@ -102,6 +102,15 @@ export const order = defineType({
             initialValue: 'cod',
         }),
         defineField({
+            name: 'stockApplied',
+            title: 'Holding stock',
+            type: 'boolean',
+            readOnly: true,
+            description:
+                'True once the order is confirmed and the goods have been taken off the shelf. Cancelling puts them back.',
+            initialValue: false,
+        }),
+        defineField({
             name: 'createdAt',
             title: 'Placed at',
             type: 'datetime',

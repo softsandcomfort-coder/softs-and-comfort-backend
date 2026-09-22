@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import ReviewManager from "@/components/reviews/ReviewManager";
 import { listReviews, type Review } from "@/lib/sanity/reviews";
@@ -14,6 +15,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function ReviewsPage() {
+    await requirePermission("marketing");
+
     let reviews: Review[] = [];
     let products: { _id: string; title: string }[] = [];
     let loadError: string | null = null;

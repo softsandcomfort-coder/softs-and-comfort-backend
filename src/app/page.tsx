@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { hasPermission } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import StartsCard2 from "@/components/chart/StartsCard2";
 import RevenueChart3 from "@/components/chart/RevenueChart3";
@@ -48,6 +49,11 @@ export default async function DashboardPage() {
         );
     }
 
+    // Revenue, customers and orders are restricted: a staff account without the
+    // "orders" permission sees the catalogue half of the dashboard only.
+    const canSeeOrders = await hasPermission("orders");
+    const canSeeProducts = await hasPermission("products");
+
     try {
         const data = await getDashboardData();
 
@@ -67,15 +73,20 @@ export default async function DashboardPage() {
         return (
             <Layout>
                 <div className="tf-section-2 mb-30">
-                    {statCards.map((card, idx) => (
-                        <StartsCard2 key={idx} card={card} />
-                    ))}
+                    {statCards
+                        .filter((card) => canSeeOrders || /product/i.test(String(card.title)))
+                        .map((card, idx) => (
+                            <StartsCard2 key={idx} card={card} />
+                        ))}
                 </div>
 
+                {canSeeOrders && (
                 <div className="mb-30">
                     <RevenueChart3 revenueData={revenueData} />
                 </div>
+                )}
 
+                {canSeeOrders && (
                 <div className="mb-30">
                     <div className="flex gap20 flex-wrap-mobile">
                         {data.statusCounts.length > 0 ? (
@@ -97,9 +108,10 @@ export default async function DashboardPage() {
                         />
                     </div>
                 </div>
+                )}
 
                 <div className="tf-section-1">
-                    {recentOrders.length > 0 ? (
+                    {canSeeOrders && (recentOrders.length > 0 ? (
                         <RecentOrder2 recentOrders={recentOrders} />
                     ) : (
                         <div className="wg-box">
@@ -111,8 +123,8 @@ export default async function DashboardPage() {
                                 Orders placed through the storefront will appear here.
                             </div>
                         </div>
-                    )}
-                    <LowStockProducts items={data.lowStock} />
+                    ))}
+                    {canSeeProducts && <LowStockProducts items={data.lowStock} />}
                 </div>
             </Layout>
         );

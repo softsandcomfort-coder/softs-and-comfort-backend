@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import ProductListClient from "@/components/product/ProductListClient";
 import EmptyState from "@/components/common/EmptyState";
 import { listProducts } from "@/lib/sanity/catalog";
@@ -15,6 +16,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AllProductPage() {
+    await requirePermission("products");
+
     let rows: ReturnType<typeof productToRow>[] = [];
     let loadError: string | null = null;
 

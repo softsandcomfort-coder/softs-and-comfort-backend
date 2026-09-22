@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import OrderListClient from "@/components/order/OrderListClient";
 import EmptyState from "@/components/common/EmptyState";
 import { listOrders } from "@/lib/sanity/orders";
@@ -17,6 +18,8 @@ export const dynamic = "force-dynamic";
 const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default async function OrderListPage() {
+    await requirePermission("orders");
+
     let rows: Product[] = [];
     let loadError: string | null = null;
 

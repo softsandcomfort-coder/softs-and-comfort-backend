@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { findUserByEmail, createResetToken } from "@/lib/auth";
 import { sendPasswordResetEmail } from "@/lib/mailer";
+import { rateLimit, clientIp, tooManyRequests } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
     try {
@@ -15,6 +16,18 @@ export async function POST(req: Request) {
         );
 
         if (!email) return genericOk;
+
+        // Without a limit this mails-bombs the owner, and because a new token
+        // invalidates the previous one, repeated requests also stop the owner
+        // from ever completing a reset.
+        const perEmail = rateLimit(`reset:email:${email}`, 3, 60 * 60 * 1000);
+        if (!perEmail.ok) {
+            return tooManyRequests("Too many reset requests. Try again later.", perEmail.retryAfter);
+        }
+        const perIp = rateLimit(`reset:ip:${clientIp(req)}`, 10, 60 * 60 * 1000);
+        if (!perIp.ok) {
+            return tooManyRequests("Too many reset requests. Try again later.", perIp.retryAfter);
+        }
 
         const user = await findUserByEmail(email);
         if (!user || user.active === false) return genericOk;

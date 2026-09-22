@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { catalogClient } from "@/lib/sanity/client";
-import { createOrder, type OrderLine } from "@/lib/sanity/orders";
+import { createOrder, countRecentOrdersByPhone, type OrderLine } from "@/lib/sanity/orders";
 import { validatePromoCode, incrementPromoUsage } from "@/lib/sanity/promo";
 import { checkStock } from "@/lib/sanity/stock";
 import { corsHeaders, isOriginAllowed } from "@/lib/publicCors";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 import { sendOrderConfirmationEmail, isMailConfigured } from "@/lib/mailer";
 import { customerWhatsAppText, whatsAppLink } from "@/lib/orderMessage";
 import { getStoreSettings } from "@/lib/sanity/catalog";
@@ -29,12 +30,27 @@ export async function OPTIONS(req: Request) {
 
 type IncomingLine = { productId?: unknown; qty?: unknown; size?: unknown; color?: unknown };
 
+/** Nobody legitimately places more than a handful of orders in an hour. */
+const MAX_ORDERS_PER_IP_PER_HOUR = 8;
+const MAX_ORDERS_PER_PHONE_PER_DAY = 5;
+
 export async function POST(req: Request) {
     const origin = req.headers.get("origin");
     const headers = corsHeaders(origin);
 
     if (!isOriginAllowed(origin)) {
         return NextResponse.json({ message: "Origin not allowed" }, { status: 403, headers });
+    }
+
+    // This endpoint needs no login, so without a ceiling a script could place
+    // unlimited orders. Stock is no longer touched until an order is confirmed,
+    // but the owner still should not wake up to a thousand junk orders.
+    const byIp = rateLimit(`order:ip:${clientIp(req)}`, MAX_ORDERS_PER_IP_PER_HOUR, 60 * 60 * 1000);
+    if (!byIp.ok) {
+        return NextResponse.json(
+            { message: "Too many orders from this device. Please contact us to place another." },
+            { status: 429, headers: { ...headers, "Retry-After": String(byIp.retryAfter) } }
+        );
     }
 
     try {
@@ -63,6 +79,17 @@ export async function POST(req: Request) {
                 { status: 400, headers }
             );
         }
+        // Durable half of the flood protection: survives across serverless
+        // instances, because the count comes from the orders themselves.
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const recentForPhone = await countRecentOrdersByPhone(customerPhone, dayAgo).catch(() => 0);
+        if (recentForPhone >= MAX_ORDERS_PER_PHONE_PER_DAY) {
+            return NextResponse.json(
+                { message: "This number has placed several orders today. Please message us to add more." },
+                { status: 429, headers }
+            );
+        }
+
         if (rawLines.length === 0) {
             return NextResponse.json({ message: "Your cart is empty" }, { status: 400, headers });
         }

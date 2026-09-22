@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import CategoryListClient from "@/components/category/CategoryListClient";
 import EmptyState from "@/components/common/EmptyState";
 import { listCategories } from "@/lib/sanity/catalog";
@@ -15,6 +16,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AllCategoryPage() {
+    await requirePermission("categories");
+
     let rows: Category[] = [];
     let loadError: string | null = null;
 

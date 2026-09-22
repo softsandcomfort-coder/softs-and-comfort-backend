@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import ProductDetailView from "@/components/product/ProductDetailView";
 import { getProduct } from "@/lib/sanity/catalog";
@@ -17,6 +18,8 @@ export default async function ProductDetailPage({
 }: {
     params: Promise<{ id: string }>;
 }) {
+    await requirePermission("products");
+
     const { id } = await params;
 
     const breadcrumbs = (

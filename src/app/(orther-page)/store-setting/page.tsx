@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import StoreSettingForm from "@/components/orther-page/StoreSettingForm";
 import Link from "next/link";
 import React from "react";
@@ -8,7 +9,9 @@ export const metadata = {
     description: "Store Settings — Soft & Comfort Admin",
 };
 
-export default function page() {
+export default async function page() {
+    await requirePermission("settings");
+
     return (
         <>
             <Layout>

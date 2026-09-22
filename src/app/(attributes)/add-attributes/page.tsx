@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { requirePermission } from "@/lib/guard";
 import AddAttributesForm from "@/components/attributes/AddAttributesForm";
 import AttributeTable from "@/components/attributes/AttributeTable";
 import Layout from "@/components/layout/Layout";
@@ -11,7 +12,9 @@ export const metadata = {
     description: "Add Attribute — Soft & Comfort Admin",
 };
 
-export default function page() {
+export default async function page() {
+    await requirePermission("products");
+
     return (
         <>
             <Layout>

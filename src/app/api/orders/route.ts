@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { can } from "@/lib/session";
 import { listOrders, getOrder, updateOrderStatus, deleteOrder, type OrderStatus } from "@/lib/sanity/orders";
 
 const STATUSES: OrderStatus[] = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
 
 async function guard() {
-    const session = await getSession();
+    const session = await requireSession();
     if (!can(session, "orders")) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }

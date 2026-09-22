@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import AddNewUserForm from "@/components/user/AddNewUserForm";
 import Link from "next/link";
 import React from "react";
@@ -8,7 +9,9 @@ export const metadata = {
     description: "Add User — Soft & Comfort Admin",
 };
 
-export default function page() {
+export default async function page() {
+    await requirePermission("users");
+
     return (
         <>
             <Layout>

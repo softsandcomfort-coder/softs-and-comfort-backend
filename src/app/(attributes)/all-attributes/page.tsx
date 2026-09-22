@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import AttributeListClient from "@/components/attributes/AttributeListClient";
 import EmptyState from "@/components/common/EmptyState";
 import { listAttributes } from "@/lib/sanity/catalog";
@@ -14,6 +15,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AllAttributesPage() {
+    await requirePermission("products");
+
     let rows: AttributeItem[] = [];
     let loadError: string | null = null;
 

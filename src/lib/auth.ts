@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { randomUUID, randomBytes, createHash } from "crypto";
@@ -21,9 +22,16 @@ export type AdminUser = {
     role: "owner" | "staff";
     permissions: string[];
     active: boolean;
+    /** Cookies issued before this moment are refused. Bumped on password
+     *  change, deactivation and permission edits. */
+    sessionsValidFrom?: string;
+    /** Consecutive failed sign-ins; cleared on success. */
+    failedLogins?: number;
+    /** While set and in the future, sign-in is refused even with the right password. */
+    lockedUntil?: string;
 };
 
-const USER_FIELDS = `{ _id, name, email, passwordHash, role, permissions, active }`;
+const USER_FIELDS = `{ _id, name, email, passwordHash, role, permissions, active, sessionsValidFrom, failedLogins, lockedUntil }`;
 
 export async function findUserByEmail(email: string): Promise<AdminUser | null> {
     return adminClient().fetch<AdminUser | null>(
@@ -75,11 +83,19 @@ export async function createUser(input: {
 
 export async function updateUserPassword(userId: string, password: string): Promise<void> {
     const passwordHash = await bcrypt.hash(password, 12);
-    await adminClient().patch(userId).set({ passwordHash }).commit();
+    // changing the password signs out every existing cookie for this account
+    await adminClient()
+        .patch(userId)
+        .set({ passwordHash, sessionsValidFrom: new Date().toISOString() })
+        .commit();
 }
 
 export async function setUserActive(userId: string, active: boolean): Promise<void> {
-    await adminClient().patch(userId).set({ active }).commit();
+    // deactivating takes effect on the next request, not when the token expires
+    await adminClient()
+        .patch(userId)
+        .set({ active, sessionsValidFrom: new Date().toISOString() })
+        .commit();
 }
 
 export async function deleteUser(userId: string): Promise<void> {
@@ -88,6 +104,43 @@ export async function deleteUser(userId: string): Promise<void> {
 
 export function verifyPassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
+}
+
+// ─── Failed sign-in lockout ──────────────────────────────────────────────────
+
+const MAX_FAILED_LOGINS = 10;
+const LOCKOUT_MINUTES = 15;
+
+/** A dummy hash so a missing account costs the same time as a wrong password. */
+const TIMING_HASH = "$2a$12$C6UzMDM.H6dfI/f/IKcEe.7xY2x1v5cqXQ5ZK0K4lMBrRvVQK0gTu";
+
+/** Burns the same bcrypt time as a real comparison, to flatten the response. */
+export async function equalisePasswordTiming(password: string): Promise<void> {
+    await bcrypt.compare(password, TIMING_HASH).catch(() => false);
+}
+
+export function isLockedOut(user: AdminUser): boolean {
+    return Boolean(user.lockedUntil && new Date(user.lockedUntil).getTime() > Date.now());
+}
+
+/** Counts a failed attempt and locks the account once the limit is reached. */
+export async function recordFailedLogin(user: AdminUser): Promise<void> {
+    const failed = (user.failedLogins ?? 0) + 1;
+    const patch: Record<string, unknown> = { failedLogins: failed };
+    if (failed >= MAX_FAILED_LOGINS) {
+        patch.lockedUntil = new Date(Date.now() + LOCKOUT_MINUTES * 60_000).toISOString();
+        patch.failedLogins = 0;
+    }
+    await adminClient().patch(user._id).set(patch).commit().catch(() => undefined);
+}
+
+export async function clearFailedLogins(user: AdminUser): Promise<void> {
+    if (!user.failedLogins && !user.lockedUntil) return;
+    await adminClient()
+        .patch(user._id)
+        .set({ failedLogins: 0, lockedUntil: null })
+        .commit()
+        .catch(() => undefined);
 }
 
 // ─── Session helpers ─────────────────────────────────────────────────────────
@@ -130,12 +183,43 @@ export async function getSession(): Promise<SessionPayload | null> {
  * Re-reads the account behind the session so a deactivated or deleted user
  * loses access immediately, without waiting for their JWT to expire.
  */
-export async function getCurrentUser(): Promise<AdminUser | null> {
+export const getCurrentUser = cache(async function getCurrentUser(): Promise<AdminUser | null> {
     const session = await getSession();
     if (!session) return null;
+
     const user = await findUserById(session.sub);
     if (!user || user.active === false) return null;
+
+    // a password change, deactivation or permission edit invalidates older cookies
+    if (user.sessionsValidFrom && session.issuedAt) {
+        const validFrom = Math.floor(new Date(user.sessionsValidFrom).getTime() / 1000);
+        if (Number.isFinite(validFrom) && session.issuedAt < validFrom) return null;
+    }
+
     return user;
+});
+
+/**
+ * The session to authorise against: the signed cookie, re-checked against the
+ * live account. Role and permissions come from Sanity, not from the token, so
+ * revoking access takes effect on the next request rather than in 30 days.
+ *
+ * Cached per request, so several guards on one page cost a single read.
+ */
+export const requireSession = cache(async function requireSession(): Promise<SessionPayload | null> {
+    const user = await getCurrentUser();
+    if (!user) return null;
+    return {
+        sub: user._id,
+        email: user.email,
+        role: user.role,
+        permissions: user.permissions ?? [],
+    };
+});
+
+/** Refuses every cookie issued before now for this account. */
+export async function invalidateSessions(userId: string): Promise<void> {
+    await adminClient().patch(userId).set({ sessionsValidFrom: new Date().toISOString() }).commit();
 }
 
 // ─── Password reset ──────────────────────────────────────────────────────────

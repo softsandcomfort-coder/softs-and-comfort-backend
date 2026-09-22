@@ -75,6 +75,27 @@ export const adminUser = defineType({
             initialValue: true,
         }),
         defineField({
+            name: 'sessionsValidFrom',
+            title: 'Sessions valid from',
+            type: 'datetime',
+            readOnly: true,
+            description:
+                'Sign-ins issued before this are refused. Set automatically when the password changes or access is revoked.',
+        }),
+        defineField({
+            name: 'failedLogins',
+            title: 'Failed sign-ins',
+            type: 'number',
+            readOnly: true,
+        }),
+        defineField({
+            name: 'lockedUntil',
+            title: 'Locked until',
+            type: 'datetime',
+            readOnly: true,
+            description: 'Set after repeated failed sign-ins; expires by itself.',
+        }),
+        defineField({
             name: 'createdAt',
             title: 'Created at',
             type: 'datetime',

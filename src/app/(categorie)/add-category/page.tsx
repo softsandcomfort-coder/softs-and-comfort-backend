@@ -1,4 +1,5 @@
 import AddCategoryForm from "@/components/category/AddCategoryForm";
+import { requirePermission } from "@/lib/guard";
 import Layout from "@/components/layout/Layout";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -10,6 +11,8 @@ export const metadata = {
 
 /** Same page for both: "?id=" switches the form into edit mode. */
 export default async function page({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
+    await requirePermission("categories");
+
     const { id } = await searchParams;
     const heading = id ? "Edit Category" : "Add Category";
     return (

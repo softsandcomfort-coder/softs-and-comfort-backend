@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import EditProductForm from "@/components/product/EditProductForm";
 import Link from "next/link";
 import React, { Suspense } from "react";
@@ -8,7 +9,9 @@ export const metadata = {
     description: "Edit Product — Soft & Comfort Admin",
 };
 
-export default function page() {
+export default async function page() {
+    await requirePermission("products");
+
     return (
         <>
             <Layout>

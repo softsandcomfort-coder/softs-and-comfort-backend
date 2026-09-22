@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { can } from "@/lib/session";
 import { uploadImage } from "@/lib/sanity/catalog";
 
@@ -8,7 +8,7 @@ const MAX_BYTES = 10 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"];
 
 export async function POST(req: Request) {
-    const session = await getSession();
+    const session = await requireSession();
     if (!can(session, "products")) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }

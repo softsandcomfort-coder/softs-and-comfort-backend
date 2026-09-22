@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import OrderDetailView from "@/components/order/OrderDetailView";
 import { getOrder } from "@/lib/sanity/orders";
@@ -18,6 +19,8 @@ export default async function OrderDetailPage({
 }: {
     searchParams: Promise<{ id?: string }>;
 }) {
+    await requirePermission("orders");
+
     const { id } = await searchParams;
 
     const breadcrumbs = (

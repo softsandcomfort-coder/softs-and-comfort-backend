@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requirePermission } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import PromoManager from "@/components/promo/PromoManager";
 import { listPromoCodes, type PromoCode } from "@/lib/sanity/promo";
@@ -13,6 +14,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function PromoCodesPage() {
+    await requirePermission("marketing");
+
     let promoCodes: PromoCode[] = [];
     let loadError: string | null = null;
 

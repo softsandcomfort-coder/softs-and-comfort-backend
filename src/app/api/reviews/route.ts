@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { can } from "@/lib/session";
 import {
     listReviews,
@@ -10,8 +10,8 @@ import {
 } from "@/lib/sanity/reviews";
 
 async function guard() {
-    const session = await getSession();
-    if (!can(session, "products")) {
+    const session = await requireSession();
+    if (!can(session, "marketing")) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
     return null;

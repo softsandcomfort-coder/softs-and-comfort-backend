@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getSession, listUsers, createUser, findUserByEmail, deleteUser, setUserActive } from "@/lib/auth";
+import { requireSession, listUsers, createUser, findUserByEmail, deleteUser, setUserActive } from "@/lib/auth";
 import { can } from "@/lib/session";
 
 async function guard() {
-    const session = await getSession();
+    const session = await requireSession();
     if (!can(session, "users")) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
         // Only these are enforced by can(); anything else is ignored rather than
         // stored, so the UI can never imply a permission the server does not check.
-        const VALID_PERMISSIONS = ["products", "categories", "orders", "users", "settings"];
+        const VALID_PERMISSIONS = ["products", "categories", "orders", "marketing", "users", "settings"];
         const rawPermissions = body.permissions;
         const requested = Array.isArray(rawPermissions)
             ? rawPermissions.map(String)
@@ -100,7 +100,7 @@ export async function DELETE(req: Request) {
         if (!id) return NextResponse.json({ message: "User id is required" }, { status: 400 });
 
         // Locking yourself out of the dashboard is never the intent.
-        const session = await getSession();
+        const session = await requireSession();
         if (session?.sub === id) {
             return NextResponse.json({ message: "You cannot delete your own account" }, { status: 400 });
         }

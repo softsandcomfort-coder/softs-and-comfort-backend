@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { can } from "@/lib/session";
 import { catalogClient } from "@/lib/sanity/client";
 
@@ -20,7 +20,7 @@ function prefixFor(name: string | null | undefined): string {
 }
 
 export async function GET(req: Request) {
-    const session = await getSession();
+    const session = await requireSession();
     if (!can(session, "products")) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }

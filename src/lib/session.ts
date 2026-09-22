@@ -20,6 +20,8 @@ export type SessionPayload = {
     email: string;
     role: "owner" | "staff";
     permissions: string[];
+    /** seconds since the epoch; compared against the account's sessionsValidFrom */
+    issuedAt?: number;
 };
 
 function secretKey(): Uint8Array {
@@ -60,6 +62,7 @@ export async function verifySessionToken(token: string | undefined): Promise<Ses
             email: String(payload.email ?? ""),
             role: payload.role === "owner" ? "owner" : "staff",
             permissions: Array.isArray(payload.permissions) ? (payload.permissions as string[]) : [],
+            issuedAt: typeof payload.iat === "number" ? payload.iat : undefined,
         };
     } catch {
         // bad signature, expired, malformed — all mean "not signed in"
