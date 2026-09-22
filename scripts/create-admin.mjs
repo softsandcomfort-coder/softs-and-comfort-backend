@@ -4,7 +4,10 @@
  * This is the bootstrap step: you cannot create the first admin through the
  * dashboard, because signing in requires an account to already exist.
  *
- *   node scripts/create-admin.mjs owner@velorrafashion.com 'a-strong-password' 'Full Name'
+ *   node scripts/create-admin.mjs owner@softandcomfort.com 'a-strong-password' 'Full Name'
+ *
+ * Reads .env.local by default. Pass --env <file> to target another project,
+ * e.g. the live one:  npm run create:admin:prod -- <email> <password> [name]
  *
  * Requires SANITY_API_TOKEN with Editor rights on the PRIVATE admin dataset.
  */
@@ -12,13 +15,17 @@ import { createClient } from '@sanity/client'
 import bcrypt from 'bcryptjs'
 import { config as loadEnv } from 'dotenv'
 
-loadEnv({ path: '.env.local' })
+const args = process.argv.slice(2)
+const envFlag = args.indexOf('--env')
+const envFile = envFlag === -1 ? '.env.local' : args.splice(envFlag, 2)[1]
+
+loadEnv({ path: envFile, quiet: true })
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
 const dataset = process.env.NEXT_PUBLIC_SANITY_ADMIN_DATASET || 'admin'
 const token = process.env.SANITY_API_TOKEN
 
-const [email, password, name = 'Store Owner'] = process.argv.slice(2)
+const [email, password, name = 'Store Owner'] = args
 
 function fail(message) {
     console.error(`\n  ✗ ${message}\n`)
@@ -32,6 +39,9 @@ if (!email || !password) {
 }
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail(`"${email}" is not a valid email address.`)
 if (password.length < 8) fail('Password must be at least 8 characters.')
+
+console.log(`
+  Using ${envFile} → project ${projectId}, dataset ${dataset}`)
 
 const client = createClient({
     projectId,
@@ -65,4 +75,4 @@ if (existing) {
     console.log(`\n  ✓ Created owner account ${normalisedEmail} (${doc._id})\n`)
 }
 
-console.log('  You can now sign in to the dashboard at http://localhost:3000/login\n')
+console.log(`  You can now sign in at ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login\n`)
