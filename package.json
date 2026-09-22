@@ -10,6 +10,7 @@
         "typecheck": "tsc --noEmit",
         "create:admin": "node scripts/create-admin.mjs",
         "create:admin:prod": "node scripts/create-admin.mjs --env .env.production",
+        "create:datasets:prod": "node scripts/create-datasets.mjs --env .env.production",
         "seed:categories": "node scripts/seed-categories.mjs"
     },
     "dependencies": {
