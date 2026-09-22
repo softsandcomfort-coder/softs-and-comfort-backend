@@ -15,6 +15,17 @@ import { can } from "./session";
  * `requireSession` is cached per request, so several calls cost one read.
  */
 
+/**
+ * Just "must be signed in with an account that still exists".
+ *
+ * The middleware only verifies the cookie signature, so a cookie for an
+ * account that was deleted — or that belongs to a different Sanity project —
+ * passes it and then renders an empty page. This sends it back to sign in.
+ */
+export async function requireAuth(): Promise<void> {
+    if (!(await requireSession())) redirect("/login");
+}
+
 /** Redirects to the dashboard unless the signed-in account holds `permission`. */
 export async function requirePermission(permission: string): Promise<void> {
     const session = await requireSession();

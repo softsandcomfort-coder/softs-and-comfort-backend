@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import { requireAuth } from "@/lib/guard";
 import SettingForm from "@/components/orther-page/SettingForm";
 import Link from "next/link";
 import React from "react";
@@ -8,7 +9,9 @@ export const metadata = {
     description: "Settings — Soft & Comfort Admin",
 };
 
-export default function page() {
+export default async function page() {
+    await requireAuth();
+
     return (
         <>
             <Layout>

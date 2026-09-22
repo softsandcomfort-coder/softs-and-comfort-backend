@@ -1,5 +1,5 @@
 import Layout from "@/components/layout/Layout";
-import { hasPermission } from "@/lib/guard";
+import { hasPermission, requireAuth } from "@/lib/guard";
 import EmptyState from "@/components/common/EmptyState";
 import StartsCard2 from "@/components/chart/StartsCard2";
 import RevenueChart3 from "@/components/chart/RevenueChart3";
@@ -38,6 +38,8 @@ export const dynamic = "force-dynamic";
  * order statuses, and the invented comments list is now real low-stock alerts.
  */
 export default async function DashboardPage() {
+    await requireAuth();
+
     if (!isSanityConfigured) {
         return (
             <Layout>
