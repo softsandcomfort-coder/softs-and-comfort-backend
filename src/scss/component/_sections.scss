@@ -69,8 +69,10 @@
 
 .tf-section-2 {
     display: grid !important;
-    gap: 30px 20px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    // fit as many equal cards per row as the width allows, so four stat cards
+    // do not leave a lone card stranded on a second row
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .tf-section-3 {

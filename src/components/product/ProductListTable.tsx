@@ -35,7 +35,7 @@ export default function ProductListTable({ ProductItem = EMPTY_PRODUCT, onDelete
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("All Categories");
     const [status, setStatus] = useState("All Status");
-    const [sortBy, setSortBy] = useState("Sort by (Defaut)");
+    const [sortBy, setSortBy] = useState("Sort by (Default)");
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
@@ -81,7 +81,7 @@ export default function ProductListTable({ ProductItem = EMPTY_PRODUCT, onDelete
             result.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
         }
 
-        if (sortBy === "Payment") {
+        if (sortBy === "Sale price") {
             result.sort((a, b) => {
                 const saleA = a.sale ?? 0;
                 const saleB = b.sale ?? 0;
@@ -229,7 +229,6 @@ export default function ProductListTable({ ProductItem = EMPTY_PRODUCT, onDelete
                                 <option>All Status</option>
                                 <option>Complete</option>
                                 <option>Pending</option>
-                                <option>New</option>
                             </select>
                         </div>
 
@@ -238,11 +237,11 @@ export default function ProductListTable({ ProductItem = EMPTY_PRODUCT, onDelete
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                             >
-                                <option>Sort by (Defaut)</option>
+                                <option>Sort by (Default)</option>
                                 <option>ID</option>
                                 <option>Name</option>
                                 <option>Price</option>
-                                <option>Payment</option>
+                                <option>Sale price</option>
                             </select>
                         </div>
 
@@ -268,7 +267,7 @@ export default function ProductListTable({ ProductItem = EMPTY_PRODUCT, onDelete
                             <div className="body-title">Quantity</div>
                         </li>
                         <li>
-                            <div className="body-title">Sale</div>
+                            <div className="body-title">Sale price</div>
                         </li>
                         <li>
                             <div className="body-title">Stock</div>
@@ -314,7 +313,7 @@ export default function ProductListTable({ ProductItem = EMPTY_PRODUCT, onDelete
                                         : item.quantity}
                                 </div>
                                 <div className="body-text text-info mt-4">
-                                    {item.sale}
+                                    {item.sale ? `Rs ${Number(item.sale).toLocaleString()}` : "—"}
                                 </div>
 
                                 <div>

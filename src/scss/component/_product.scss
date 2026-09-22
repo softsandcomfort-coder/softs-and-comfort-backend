@@ -116,7 +116,7 @@
 }
 
 .bg-color-orange {
-    background-color: #FF7433;
+    background-color: var(--Main);
 }
 .bg-color-blue {
     background-color: #2377FC;
@@ -258,7 +258,7 @@
             margin-bottom: 8px;
             border-radius: 9px;
             .progress-bar {
-                background-color: #FF7433;
+                background-color: var(--Main);
             }
         }
     }

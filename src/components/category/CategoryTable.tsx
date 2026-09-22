@@ -17,7 +17,7 @@ type CategoryListProps = {
 export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete }: CategoryListProps) {
   const [list, setList] = useState<Category[]>(CategoryItem);
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("Sort by (Defaut)");
+  const [sort, setSort] = useState("Sort by (Default)");
   const [entries, setEntries] = useState(5);
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<Category | null>(null);
@@ -132,7 +132,7 @@ export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete
           <div className="flex items-center justify-between gap10 flex-wrap">
             <div className="tf-select">
               <select value={sort} onChange={(e) => setSort(e.target.value)}>
-                <option>Sort by (Defaut)</option>
+                <option>Sort by (Default)</option>
                 <option>Name</option>
                 <option>Products</option>
               </select>

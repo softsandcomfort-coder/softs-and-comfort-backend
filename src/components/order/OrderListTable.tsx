@@ -28,7 +28,7 @@ export default function OrderListTable({
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("All Payments");
     const [status, setStatus] = useState("All Status");
-    const [sortBy, setSortBy] = useState("Sort by (Defaut)");
+    const [sortBy, setSortBy] = useState("Sort by (Default)");
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
     const [deleting, setDeleting] = useState(false);
@@ -174,7 +174,6 @@ export default function OrderListTable({
                                     tabIndex={2}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    required
                                 />
                             </fieldset>
                             <div className="button-submit">
@@ -216,7 +215,7 @@ export default function OrderListTable({
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                             >
-                                <option>Sort by (Defaut)</option>
+                                <option>Sort by (Default)</option>
                                 <option>ID</option>
                                 <option>Name</option>
                                 <option>Price</option>

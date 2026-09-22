@@ -26,7 +26,7 @@
     line-height: 19px;
 
     span {
-        color: #FF5200;
+        color: var(--Main);
     }
 }
 
@@ -415,7 +415,7 @@
     gap: 10px;
     border-radius: 4px;
     background: var(--Surface-3);
-    color: #FF5200;
+    color: var(--Main);
     font-size: 12px;
     font-weight: 500;
 
@@ -516,14 +516,14 @@
     gap: 10px;
     border-radius: 12px;
     background: var(--bg-1);
-    color: #FF7433;
+    color: var(--Main);
 
     i {
         font-size: 24px;
     }
 
     div {
-        color: #FF7433;
+        color: var(--Main);
         font-size: 12px;
         line-height: 14px;
     }
@@ -626,7 +626,7 @@
         }
 
         &.t6 {
-            background-color: #FF7433;
+            background-color: var(--Main);
         }
 
         &.t7 {
@@ -671,7 +671,7 @@
             }
 
             &.t4 {
-                border: 4px solid #FF7433;
+                border: 4px solid var(--Main);
             }
 
             &.t5 {
@@ -1151,8 +1151,12 @@
             background-color: #2377FC;
         }
 
+        &.color-CC0D39 {
+            background-color: #CC0D39;
+        }
+
         &.color-FF7433 {
-            background-color: #FF7433;
+            background-color: var(--Main);
         }
 
         &.color-35988D {
@@ -1310,7 +1314,7 @@
 }
 
 #line-chart-19 .apexcharts-series path:hover {
-    fill: #FF7433;
+    fill: var(--Main);
 }
 
 #line-chart-20 .apexcharts-series path:hover {
@@ -1649,7 +1653,7 @@
             top: 0;
             width: 1em;
             height: 1em;
-            background: #FF7433;
+            background: var(--Main);
             clip: rect(0 1em 1em .5em);
             transform: rotate(180deg);
             transition: 1.05s;
@@ -1690,7 +1694,7 @@
             top: 0em;
             right: 0;
             bottom: 0;
-            background: #FF7433;
+            background: var(--Main);
             content: '';
         }
 

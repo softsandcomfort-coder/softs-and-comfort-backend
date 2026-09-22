@@ -41,14 +41,16 @@ export default function Layout({
         boxed ? 'boxed' : 'full'
     )
 
-    const [primaryTheme, setPrimaryTheme] = useState<PrimaryThemeColor>('FF7433')
+    const [primaryTheme, setPrimaryTheme] = useState<PrimaryThemeColor>('CC0D39')
 
     useEffect(() => {
         const savedMenuStyle = localStorage.getItem('menuStyle')
         const savedMenuPosition = localStorage.getItem('menuPosition')
         const savedHeaderPosition = localStorage.getItem('headerPosition')
         const savedLayoutWidth = localStorage.getItem('layoutWidth')
-        const savedPrimaryTheme = localStorage.getItem('primaryTheme') as PrimaryThemeColor | null
+        const stored = localStorage.getItem('primaryTheme') as PrimaryThemeColor | null
+        // the template's orange was the old default; move those browsers to the brand colour
+        const savedPrimaryTheme = stored === 'FF7433' ? 'CC0D39' : stored
 
         if (
             savedMenuStyle === 'menu-click' ||
@@ -71,7 +73,7 @@ export default function Layout({
         }
 
         if (
-            savedPrimaryTheme === 'FF7433' ||
+            savedPrimaryTheme === 'CC0D39' ||
             savedPrimaryTheme === '2377FC' ||
             savedPrimaryTheme === '35988D' ||
             savedPrimaryTheme === '7047D6' ||

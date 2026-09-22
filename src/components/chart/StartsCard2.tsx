@@ -38,13 +38,17 @@ export default function StartsCard2({ card }: StartsCard2Props) {
             ? "0%"
             : `${Math.abs(((last - first) / first) * 100).toFixed(2)}%`;
 
+    // A brand-new store has nothing to plot. Showing an empty axis and a "0%"
+    // trend arrow reads as broken, so both are left out until there is data.
+    const hasData = (series ?? []).some((n) => n > 0);
+
     useEffect(() => {
         setMounted(true);
     }, []);
 
     // Render chart when filter changes
     useEffect(() => {
-        if (!mounted || !containerRef.current) return;
+        if (!mounted || !hasData || !containerRef.current) return;
         let disposed = false;
 
         const renderChart = async () => {
@@ -107,7 +111,7 @@ export default function StartsCard2({ card }: StartsCard2Props) {
                 chartRef.current = null;
             }
         };
-    }, [mounted, currentData, card.chartColor, card.title, card.chartHeight]);
+    }, [mounted, hasData, currentData, card.chartColor, card.title, card.chartHeight]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -135,6 +139,7 @@ export default function StartsCard2({ card }: StartsCard2Props) {
                             <div className="body-text mt-2 mb-4">
                                 {card.title}
                             </div>
+                            {hasData && (
                             <div
                                 className={`box-icon-trending ${isUp ? "up" : "down"}`}
                             >
@@ -148,6 +153,7 @@ export default function StartsCard2({ card }: StartsCard2Props) {
                                     {percent}
                                 </div>
                             </div>
+                            )}
                         </div>
                         <h4>
                             <strong>{currentData.value}</strong>
@@ -199,13 +205,15 @@ export default function StartsCard2({ card }: StartsCard2Props) {
                 </nav>
             </div>
 
-            <div className="wrap-chart">
-                <div
-                    className="wrap-line-chart"
-                    style={{ minHeight: `${(card.chartHeight ?? 0) + 30}px` }}
-                    ref={containerRef}
-                />
-            </div>
+            {hasData && (
+                <div className="wrap-chart">
+                    <div
+                        className="wrap-line-chart"
+                        style={{ minHeight: `${(card.chartHeight ?? 0) + 30}px` }}
+                        ref={containerRef}
+                    />
+                </div>
+            )}
         </div>
     );
 }

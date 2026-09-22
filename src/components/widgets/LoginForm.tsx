@@ -3,6 +3,7 @@
 import React, { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -11,9 +12,12 @@ export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [keepSignedIn, setKeepSignedIn] = useState(false);
     const [loading, setLoading] = useState(false);
+    // shown in the form itself — a browser alert() is not an error message
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError(null);
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
@@ -33,15 +37,15 @@ export default function LoginForm() {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(data.message || "Login failed");
+                setError(data.message || "That email and password do not match.");
                 return;
             }
 
             router.push(from);
             router.refresh();
-        } catch (error) {
-            console.error(error);
-            alert("Something went wrong");
+        } catch (err) {
+            console.error(err);
+            setError("Could not reach the server. Check your connection and try again.");
         } finally {
             setLoading(false);
         }
@@ -52,19 +56,29 @@ export default function LoginForm() {
 
             <div className="right">
                 <div className="login-box">
+                    <div className="login-brand">
+                        <Image src="/images/logo/logo.png" alt="Soft & Comfort" width={150} height={70} priority />
+                    </div>
+
                     <form
                         className="form-login flex flex-column gap22 w-full"
                         onSubmit={handleSubmit}
                     >
                         <div>
-                            <h3>Login to account</h3>
-                            <div className="body-text text-white mb-5">
-                                Or enter your email & password to login
+                            <h3>Sign in</h3>
+                            <div className="body-text mb-5">
+                                Manage your store — products, orders and settings.
                             </div>
                         </div>
 
+                        {error && (
+                            <div className="login-error" role="alert">
+                                {error}
+                            </div>
+                        )}
+
                         <fieldset className="email">
-                            <div className="body-title mb-10 text-white">
+                            <div className="body-title mb-10">
                                 Email address{" "}
                                 <span className="tf-color-1">*</span>
                             </div>
@@ -78,7 +92,7 @@ export default function LoginForm() {
                         </fieldset>
 
                         <fieldset className="password">
-                            <div className="body-title mb-10 text-white">
+                            <div className="body-title mb-10">
                                 Password <span className="tf-color-1">*</span>
                             </div>
                             <input
@@ -110,7 +124,7 @@ export default function LoginForm() {
                                     }
                                 />
                                 <label
-                                    className="body-text text-surface-3"
+                                    className="body-text"
                                     htmlFor="signed"
                                 >
                                     Keep me signed in
@@ -130,7 +144,7 @@ export default function LoginForm() {
                             className="tf-button w-full"
                             disabled={loading}
                         >
-                            {loading ? "Loading..." : "Login"}
+                            {loading ? "Signing in…" : "Sign in"}
                         </button>
                     </form>
 

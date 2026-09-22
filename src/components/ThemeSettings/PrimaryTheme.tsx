@@ -1,6 +1,7 @@
 'use client'
 
 export type PrimaryThemeColor =
+    | 'CC0D39'   // Soft & Comfort brand, the default
     | 'FF7433'
     | '2377FC'
     | '35988D'
@@ -21,6 +22,11 @@ export default function PrimaryTheme({
             <div className="body-title mb-10">Theme Primary color</div>
 
             <div className="select-colors-theme colors-theme-primary mb-10">
+                <div
+                    className={`item color-CC0D39 ${value === 'CC0D39' ? 'active' : ''}`}
+                    onClick={() => onChange('CC0D39')}
+                    title="Soft & Comfort"
+                />
                 <div
                     className={`item color-FF7433 ${value === 'FF7433' ? 'active' : ''}`}
                     onClick={() => onChange('FF7433')}
