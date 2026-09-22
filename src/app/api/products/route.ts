@@ -50,12 +50,17 @@ function parseBody(body: Record<string, unknown>): ProductInput | { error: strin
         description: body.description ? String(body.description) : "",
         rating: body.rating != null ? Number(body.rating) : 5,
         featured: Boolean(body.featured),
+        // free-form from the dashboard: any #RRGGBB colour, any size label
         colors: Array.isArray(body.colors)
             ? (body.colors as { name?: string; hex?: string }[])
-                  .filter((c) => c && typeof c.hex === "string")
-                  .map((c) => ({ name: String(c.name ?? c.hex), hex: String(c.hex) }))
+                  .filter((c) => c && typeof c.hex === "string" && /^#[0-9a-f]{6}$/i.test(c.hex))
+                  .map((c) => {
+                      const hex = String(c.hex).toUpperCase();
+                      return { name: String(c.name ?? "").trim().slice(0, 40) || hex, hex };
+                  })
+                  .filter((c, i, all) => all.findIndex((o) => o.hex === c.hex) === i)
             : [],
-        sizes: asStringArray(body.sizes),
+        sizes: [...new Set(asStringArray(body.sizes).map((s) => s.trim().slice(0, 20)).filter(Boolean))],
         tags: asStringArray(body.tags),
         imageAssetIds: asStringArray(body.imageAssetIds),
     };

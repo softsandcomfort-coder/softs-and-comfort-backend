@@ -118,7 +118,7 @@ export default function PolicyManager({ policies }: { policies: Policy[] }) {
                     <div className="body-title mb-10">Content</div>
                     <textarea
                         rows={18}
-                        placeholder={`Write your ${meta.title.toLowerCase()} here.\n\nLeave a blank line between paragraphs.`}
+                        placeholder={`Write your ${meta.title.toLowerCase()} here.\n\nLeave a blank line between paragraphs.\n\n## A line starting with "## " (or written in CAPITALS) becomes a heading.`}
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                     />

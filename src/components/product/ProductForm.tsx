@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { shrinkImage } from "@/lib/shrinkImage";
+import { ColorField, SizeField, type ColorValue } from "./VariantFields";
 
 /**
  * The single product form, used for both creating and editing.
@@ -16,30 +17,10 @@ import { shrinkImage } from "@/lib/shrinkImage";
  * before anything can be saved.
  */
 
-const SIZE_OPTIONS = [
-    "XS", "S", "M", "L", "XL", "XXL",
-    "4", "6", "8", "10", "12", "14", "16", "18", "20",
-];
-
-/** Matches the swatch values the storefront's colour filter offers. */
-const COLOR_PRESETS = [
-    { name: "Black", hex: "#000000" },
-    { name: "Sky", hex: "#9BD1FF" },
-    { name: "Teal", hex: "#21B290" },
-    { name: "Blush", hex: "#FEC4C4" },
-    { name: "Coral", hex: "#FF7354" },
-    { name: "Mint", hex: "#51EDC8" },
-    { name: "Lilac", hex: "#B77CF3" },
-    { name: "Rose", hex: "#FF4A76" },
-    { name: "Blue", hex: "#3E68FF" },
-    { name: "Green", hex: "#7BEF68" },
-];
-
 type Category = { _id: string; name: string };
 type ImageAsset = { assetId: string; url: string };
 /** A file chosen but not yet uploaded — previewed from a local object URL. */
 type PendingImage = { id: string; file: File; url: string };
-type ColorValue = { name: string; hex: string };
 
 type ProductFormProps = {
     /** Sanity document id — when present the form loads and updates that product. */
@@ -109,7 +90,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 setTags((p.tags ?? []).join(", "));
                 setFeatured(Boolean(p.featured));
                 setSizes(p.sizes ?? []);
-                setColors(p.colors ?? []);
+                setColors((p.colors ?? []).map((c: ColorValue) => ({ ...c, hex: String(c.hex).toUpperCase() })));
                 setImages(
                     (p.images ?? []).filter((i: ImageAsset) => i?.assetId && i?.url)
                 );
@@ -196,16 +177,6 @@ export default function ProductForm({ productId }: ProductFormProps) {
             setError(err instanceof Error ? err.message : "Could not generate an SKU");
         }
     }
-
-    const toggleSize = (size: string) =>
-        setSizes((prev) => (prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]));
-
-    const toggleColor = (color: ColorValue) =>
-        setColors((prev) =>
-            prev.some((c) => c.hex === color.hex)
-                ? prev.filter((c) => c.hex !== color.hex)
-                : [...prev, color]
-        );
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -544,54 +515,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
             </div>
 
             <div className="wg-box mb-30">
-                <fieldset>
-                    <div className="body-title mb-10">Sizes</div>
-                    <div className="flex gap10 flex-wrap">
-                        {SIZE_OPTIONS.map((size) => (
-                            <button
-                                key={size}
-                                type="button"
-                                onClick={() => toggleSize(size)}
-                                className={sizes.includes(size) ? "tf-button" : "tf-button style-3"}
-                                style={{ minWidth: 56 }}
-                            >
-                                {size}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="text-tiny mt-10">
-                        Only the sizes you select here appear in the storefront size filter.
-                    </div>
-                </fieldset>
-
-                <fieldset className="mt-20">
-                    <div className="body-title mb-10">Colours</div>
-                    <div className="flex gap10 flex-wrap">
-                        {COLOR_PRESETS.map((color) => {
-                            const active = colors.some((c) => c.hex === color.hex);
-                            return (
-                                <button
-                                    key={color.hex}
-                                    type="button"
-                                    onClick={() => toggleColor(color)}
-                                    title={color.name}
-                                    aria-label={color.name}
-                                    aria-pressed={active}
-                                    style={{
-                                        width: 34, height: 34, borderRadius: "50%",
-                                        background: color.hex, cursor: "pointer",
-                                        border: active ? "3px solid #111" : "1px solid rgba(0,0,0,.2)",
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
-                    {colors.length > 0 && (
-                        <div className="text-tiny mt-10">
-                            Selected: {colors.map((c) => c.name).join(", ")}
-                        </div>
-                    )}
-                </fieldset>
+                <SizeField sizes={sizes} onChange={setSizes} />
+                <ColorField colors={colors} onChange={setColors} />
 
                 <fieldset className="mt-20">
                     <div className="body-title mb-10">Tags</div>

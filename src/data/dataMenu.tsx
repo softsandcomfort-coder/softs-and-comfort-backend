@@ -62,7 +62,7 @@ export const dataMenu = [
             },
             {
                 key: "policies",
-                title: "Policies",
+                title: "Pages & Policies",
                 icon: "icon-file-text",
                 iconSvg: null,
                 path: "/policies",

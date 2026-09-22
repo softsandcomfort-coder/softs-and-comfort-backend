@@ -16,6 +16,8 @@ export const POLICY_SLUGS = [
     { title: 'Terms & Conditions', value: 'terms' },
     { title: 'Shipping Policy', value: 'shipping' },
     { title: 'Returns & Exchanges', value: 'returns' },
+    { title: 'About Us', value: 'about' },
+    { title: 'FAQs', value: 'faq' },
 ] as const
 
 export const policy = defineType({
