@@ -17,8 +17,6 @@ type CategoryListProps = {
 export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete }: CategoryListProps) {
   const [list, setList] = useState<Category[]>(CategoryItem);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All Categories");
-  const [status, setStatus] = useState("All Status");
   const [sort, setSort] = useState("Sort by (Defaut)");
   const [entries, setEntries] = useState(5);
   const [page, setPage] = useState(1);
@@ -38,32 +36,16 @@ export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete
       );
     }
 
-    if (category !== "All Categories") {
-      result = result.filter((item) => item.category === category);
-    }
-
-    if (status !== "All Status") {
-      result = result.filter((item) => item.status === status);
-    }
-
-    if (sort === "ID") {
-      result.sort((a, b) => a.id - b.id);
-    }
-
     if (sort === "Name") {
       result.sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    if (sort === "Price") {
+    if (sort === "Products") {
       result.sort((a, b) => b.quantity - a.quantity);
     }
 
-    if (sort === "Payment") {
-      result.sort((a, b) => b.sale - a.sale);
-    }
-
     return result;
-  }, [list, search, category, status, sort]);
+  }, [list, search, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / entries));
   const safePage = Math.min(page, totalPages);
@@ -73,7 +55,7 @@ export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete
 
   useEffect(() => {
     setPage(1);
-  }, [search, category, status, sort, entries]);
+  }, [search, sort, entries]);
 
   useEffect(() => {
     if (page > totalPages) {
@@ -149,32 +131,10 @@ export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete
 
           <div className="flex items-center justify-between gap10 flex-wrap">
             <div className="tf-select">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option>All Categories</option>
-                <option>TShirt</option>
-                <option>Pants</option>
-                <option>Hat</option>
-              </select>
-            </div>
-
-            <div className="tf-select">
-              <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                <option>All Status</option>
-                <option>Publish</option>
-                <option>Draft</option>
-              </select>
-            </div>
-
-            <div className="tf-select">
               <select value={sort} onChange={(e) => setSort(e.target.value)}>
                 <option>Sort by (Defaut)</option>
-                <option>ID</option>
                 <option>Name</option>
-                <option>Price</option>
-                <option>Payment</option>
+                <option>Products</option>
               </select>
             </div>
 
@@ -191,13 +151,10 @@ export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete
               <div className="body-title">Category</div>
             </li>
             <li>
-              <div className="body-title">Quantity</div>
+              <div className="body-title">Products</div>
             </li>
             <li>
-              <div className="body-title">Sale</div>
-            </li>
-            <li>
-              <div className="body-title">Start date</div>
+              <div className="body-title">Audience</div>
             </li>
             <li>
               <div className="body-title">Action</div>
@@ -212,7 +169,7 @@ export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete
                     <Image width={50} height={50} src={item.image} alt="image" />
                   </div>
                   <div className="title line-clamp-2 mb-0">
-                    <Link href={`/product-detail/${item.id}`} className="body-text">
+                    <Link href={`/add-category?id=${item.id}`} className="body-text">
                       {item.name}
                     </Link>
                   </div>
@@ -221,14 +178,12 @@ export default function CategoryTable({ CategoryItem = EMPTY_CATEGORY , onDelete
                 <div className="body-text text-main-dark mt-4">
                   {item.quantity.toLocaleString()}
                 </div>
-                <div className="body-text text-main-dark mt-4">{item.sale}</div>
-                <div className="body-text text-main-dark mt-4">{item.date}</div>
+                <div className="body-text text-main-dark mt-4" style={{ textTransform: "capitalize" }}>
+                  {item.category || "—"}
+                </div>
 
                 <div className="list-icon-function">
-                  <Link href={'/add-category'} className="item eye">
-                    <i className="icon-eye text-main"></i>
-                  </Link>
-                  <Link href={'/add-category'} className="item edit">
+                  <Link href={`/add-category?id=${item.id}`} className="item edit" title="Edit category">
                     <i className="icon-edit-3"></i>
                   </Link>
                   <div

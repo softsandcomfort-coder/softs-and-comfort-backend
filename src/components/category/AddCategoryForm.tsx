@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import React, { ChangeEvent, FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { shrinkImage } from "@/lib/shrinkImage";
 
 /**
@@ -10,6 +10,8 @@ import { shrinkImage } from "@/lib/shrinkImage";
  * never uploaded the image anywhere — the preview was a local object URL that
  * died with the page. This uploads to Sanity first, then posts JSON matching
  * the API contract.
+ *
+ * With `?id=` in the URL it edits that category instead of creating one.
  */
 
 const GROUPS = [
@@ -20,6 +22,9 @@ const GROUPS = [
 
 export default function AddCategoryForm() {
     const router = useRouter();
+    const categoryId = useSearchParams().get("id");
+    const isEdit = Boolean(categoryId);
+    const [loading, setLoading] = useState(isEdit);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -28,6 +33,29 @@ export default function AddCategoryForm() {
     const [group, setGroup] = useState("women");
     const [description, setDescription] = useState("");
     const [image, setImage] = useState<{ assetId: string; url: string } | null>(null);
+
+    // in edit mode, load the category before anything can be saved
+    useEffect(() => {
+        if (!categoryId) return;
+        let cancelled = false;
+        fetch("/api/categories")
+            .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Could not load categories"))))
+            .then((d) => {
+                if (cancelled) return;
+                type Row = { _id: string; name?: string; group?: string; description?: string; image?: string };
+                const found = (d.categories ?? []).find((c: Row) => c._id === categoryId);
+                if (!found) throw new Error("Category not found");
+                setName(found.name ?? "");
+                setGroup(found.group ?? "women");
+                setDescription(found.description ?? "");
+                if (found.image) setImage({ assetId: "", url: found.image });
+            })
+            .catch((err) => !cancelled && setError(err.message))
+            .finally(() => !cancelled && setLoading(false));
+        return () => {
+            cancelled = true;
+        };
+    }, [categoryId]);
 
     async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
@@ -59,17 +87,19 @@ export default function AddCategoryForm() {
         setSaving(true);
         try {
             const res = await fetch("/api/categories", {
-                method: "POST",
+                method: isEdit ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    id: categoryId ?? undefined,
                     name: name.trim(),
                     group,
                     description: description.trim(),
-                    imageAssetId: image?.assetId ?? null,
+                    // an empty assetId means "keep the current image"
+                    imageAssetId: image?.assetId || null,
                 }),
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to add category");
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.message || `Could not save the category (${res.status})`);
 
             router.push("/all-category");
             router.refresh();
@@ -78,6 +108,14 @@ export default function AddCategoryForm() {
         } finally {
             setSaving(false);
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="wg-box">
+                <div className="body-text" style={{ padding: "40px 0", textAlign: "center" }}>Loading category…</div>
+            </div>
+        );
     }
 
     return (
@@ -174,7 +212,7 @@ export default function AddCategoryForm() {
 
             <div className="cols gap10">
                 <button className="tf-button w-full" type="submit" disabled={saving || uploading}>
-                    {saving ? "Saving…" : "Add category"}
+                    {saving ? "Saving…" : isEdit ? "Save changes" : "Add category"}
                 </button>
             </div>
         </form>
