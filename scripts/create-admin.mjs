@@ -54,9 +54,17 @@ const client = createClient({
 const normalisedEmail = email.trim().toLowerCase()
 const passwordHash = await bcrypt.hash(password, 12)
 
-const existing = await client.fetch('*[_type == "adminUser" && email == $email][0]{_id, name}', {
-    email: normalisedEmail,
-})
+const existing = await client
+    .fetch('*[_type == "adminUser" && email == $email][0]{_id, name}', {
+        email: normalisedEmail,
+    })
+    .catch((err) => {
+        if (err.statusCode === 404) {
+            fail(`Dataset "${dataset}" does not exist in project ${projectId}.
+    Create it at sanity.io/manage → ${projectId} → Datasets → Add dataset (visibility: Private), then run this again.`)
+        }
+        throw err
+    })
 
 if (existing) {
     await client.patch(existing._id).set({ passwordHash, active: true }).commit()
