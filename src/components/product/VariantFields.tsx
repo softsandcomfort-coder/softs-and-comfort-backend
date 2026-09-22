@@ -33,10 +33,36 @@ const COLOR_PRESETS: ColorValue[] = [
 ];
 
 const HEX_RE = /^#?([0-9a-f]{6})$/i;
+const SHORT_HEX_RE = /^#?([0-9a-f]{3})$/i;
+const RGB_RE = /^(?:rgba?\()?\s*(\d{1,3})\s*[, ]\s*(\d{1,3})\s*[, ]\s*(\d{1,3})/i;
 
+/**
+ * Accepts whatever the owner is likely to paste: "#E8C4A8", "e8c4a8", the
+ * shorthand "#FFF", or an RGB triplet copied from a design tool
+ * ("rgb(16, 185, 129)" or "16,185,129"). Returns #RRGGBB, or null if it is not
+ * a colour yet — the picker and preview only move on a complete value.
+ */
 function normaliseHex(value: string): string | null {
-    const m = value.trim().match(HEX_RE);
-    return m ? `#${m[1].toUpperCase()}` : null;
+    const raw = value.trim();
+
+    const full = raw.match(HEX_RE);
+    if (full) return `#${full[1].toUpperCase()}`;
+
+    const short = raw.match(SHORT_HEX_RE);
+    if (short) {
+        const [r, g, b] = short[1].split("");
+        return `#${(r + r + g + g + b + b).toUpperCase()}`;
+    }
+
+    const rgb = raw.match(RGB_RE);
+    if (rgb) {
+        const parts = [rgb[1], rgb[2], rgb[3]].map((n) => Number.parseInt(n, 10));
+        if (parts.every((n) => n >= 0 && n <= 255)) {
+            return rgbToHex(parts[0], parts[1], parts[2]);
+        }
+    }
+
+    return null;
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -161,18 +187,44 @@ export function ColorField({ colors, onChange }: { colors: ColorValue[]; onChang
         setHexText(value);
         const valid = normaliseHex(value);
         if (valid) {
+            setError(null);
             setHex(valid);
             setRgb(hexToRgb(valid).map(String) as [string, string, string]);
         }
     };
 
+    /** tidy the box to #RRGGBB once the owner moves on, so "fff" or a pasted
+     *  "rgb(…)" does not stay in the field looking unrecognised */
+    const tidyHexText = () => {
+        const valid = normaliseHex(hexText);
+        if (valid) setHexText(valid);
+    };
+
     const onRgb = (index: 0 | 1 | 2, value: string) => {
         const next = [...rgb] as [string, string, string];
+        // pasting "16, 185, 129" into one box fills all three
+        const triplet = value.match(/^\s*(\d{1,3})\s*[, ]\s*(\d{1,3})\s*[, ]\s*(\d{1,3})\s*$/);
+        if (triplet) {
+            const filled = [triplet[1], triplet[2], triplet[3]] as [string, string, string];
+            setRgb(filled);
+            const fromPaste = rgbToHex(clampByte(filled[0]), clampByte(filled[1]), clampByte(filled[2]));
+            setHex(fromPaste);
+            setHexText(fromPaste);
+            return;
+        }
+
         next[index] = value.replace(/[^0-9]/g, "").slice(0, 3);
         setRgb(next);
         const hexFromRgb = rgbToHex(clampByte(next[0]), clampByte(next[1]), clampByte(next[2]));
         setHex(hexFromRgb);
         setHexText(hexFromRgb);
+        setError(null);
+    };
+
+    /** 0–255 only; "300" becomes 255 once the owner leaves the box */
+    const tidyRgb = () => {
+        const clamped = rgb.map((v) => String(clampByte(v))) as [string, string, string];
+        setRgb(clamped);
     };
 
     const add = (color: ColorValue) => {
@@ -225,7 +277,15 @@ export function ColorField({ colors, onChange }: { colors: ColorValue[]; onChang
                 </label>
                 <label style={{ display: "grid", gap: 4, width: 120 }}>
                     <span className="text-tiny">Hex</span>
-                    <input type="text" value={hexText} maxLength={7} onChange={(e) => onHexText(e.target.value)} onKeyDown={onKey} />
+                    <input
+                        type="text"
+                        value={hexText}
+                        maxLength={24}
+                        placeholder="#E8C4A8"
+                        onChange={(e) => onHexText(e.target.value)}
+                        onBlur={tidyHexText}
+                        onKeyDown={onKey}
+                    />
                 </label>
                 {(["R", "G", "B"] as const).map((label, i) => (
                     <label key={label} style={{ display: "grid", gap: 4, width: 64 }}>
@@ -235,6 +295,7 @@ export function ColorField({ colors, onChange }: { colors: ColorValue[]; onChang
                             inputMode="numeric"
                             value={rgb[i]}
                             onChange={(e) => onRgb(i as 0 | 1 | 2, e.target.value)}
+                            onBlur={tidyRgb}
                             onKeyDown={onKey}
                         />
                     </label>
