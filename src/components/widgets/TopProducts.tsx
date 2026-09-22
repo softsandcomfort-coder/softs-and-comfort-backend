@@ -40,7 +40,7 @@ export default function TopProducts({ items }: { items: DashboardData["topProduc
                                 <div className="name flex-grow">
                                     <div className="image no-bg">
                                         <Image
-                                            src={p.image || "/images/products/1.png"}
+                                            src={p.image || "/images/products/placeholder.png"}
                                             alt={p.title}
                                             width={36}
                                             height={36}

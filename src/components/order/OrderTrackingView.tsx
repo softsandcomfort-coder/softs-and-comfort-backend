@@ -35,7 +35,7 @@ export default function OrderTrackingView({ order }: { order: Order }) {
                         <Image
                             width={180}
                             height={180}
-                            src={firstLine?.image || "/images/products/1.png"}
+                            src={firstLine?.image || "/images/products/placeholder.png"}
                             alt={firstLine?.title ?? "Order"}
                             style={{ objectFit: "cover", borderRadius: 12 }}
                             unoptimized

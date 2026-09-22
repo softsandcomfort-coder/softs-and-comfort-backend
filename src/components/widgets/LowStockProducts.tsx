@@ -28,7 +28,7 @@ export default function LowStockProducts({ items }: { items: DashboardData["lowS
                         <li key={p._id} className="product-item gap14 mb-20">
                             <div className="image no-bg">
                                 <Image
-                                    src={p.image || "/images/products/1.png"}
+                                    src={p.image || "/images/products/placeholder.png"}
                                     alt={p.title}
                                     width={50}
                                     height={50}

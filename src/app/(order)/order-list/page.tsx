@@ -27,7 +27,7 @@ export default async function OrderListPage() {
                 id: o._id,
                 productId: o.orderNumber,
                 name: o.customerName ?? "Guest",
-                image: o.lines?.[0]?.image || "/images/products/1.png",
+                image: o.lines?.[0]?.image || "/images/products/placeholder.png",
                 price: money(o.total),
                 quantity: (o.lines ?? []).reduce((n, l) => n + (l.qty ?? 0), 0),
                 payment: o.paymentMethod === "bank" ? "Bank transfer" : "Cash on delivery",

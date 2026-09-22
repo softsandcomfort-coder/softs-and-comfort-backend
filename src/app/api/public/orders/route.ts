@@ -165,7 +165,9 @@ export async function POST(req: Request) {
                     : undefined,
             notes: body.notes ? String(body.notes) : undefined,
             lines,
-            shippingCost: Number(body.shippingCost) || 0,
+            // never taken from the request: a negative value would lower the
+            // order total. Delivery is free until shipping rules are implemented.
+            shippingCost: 0,
             paymentMethod: body.paymentMethod ? String(body.paymentMethod) : "cod",
         });
 

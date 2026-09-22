@@ -127,7 +127,7 @@ export const product = defineType({
             title: 'Rating',
             type: 'number',
             group: 'content',
-            initialValue: 5,
+            description: 'Leave empty unless customers have actually rated this product.',
             validation: (Rule) => Rule.min(0).max(5),
         }),
         defineField({

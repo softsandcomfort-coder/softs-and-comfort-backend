@@ -12,7 +12,7 @@ import type { Product } from "@/types/models";
  * bucket) rather than being supplied — no invented "+1.56%" anywhere.
  */
 
-const PLACEHOLDER_IMAGE = "/images/products/1.png";
+const PLACEHOLDER_IMAGE = "/images/products/placeholder.png";
 
 /** Percent change between the first and last non-trivial buckets of a series. */
 function trend(series: number[]): string {

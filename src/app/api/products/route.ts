@@ -48,7 +48,8 @@ function parseBody(body: Record<string, unknown>): ProductInput | { error: strin
         brand: body.brand ? String(body.brand) : null,
         stock: Number.isFinite(stock) ? stock : 0,
         description: body.description ? String(body.description) : "",
-        rating: body.rating != null ? Number(body.rating) : 5,
+        // no default score: stars nobody gave are invented social proof
+        rating: body.rating != null && body.rating !== "" ? Number(body.rating) : null,
         featured: Boolean(body.featured),
         // free-form from the dashboard: any #RRGGBB colour, any size label
         colors: Array.isArray(body.colors)

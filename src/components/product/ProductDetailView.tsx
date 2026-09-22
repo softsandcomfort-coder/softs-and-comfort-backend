@@ -23,7 +23,7 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
             <div className="wg-box">
                 <div className="mb-20">
                     <Image
-                        src={images[0]?.url || "/images/products/1.png"}
+                        src={images[0]?.url || "/images/products/placeholder.png"}
                         alt={product.title}
                         width={520}
                         height={520}

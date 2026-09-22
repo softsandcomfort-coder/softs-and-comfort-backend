@@ -116,7 +116,7 @@ export default function OrderDetailView({
                             <div className="name flex-grow">
                                 <div className="image no-bg">
                                     <Image
-                                        src={line.image || "/images/products/1.png"}
+                                        src={line.image || "/images/products/placeholder.png"}
                                         alt={line.title ?? "Product"}
                                         width={50}
                                         height={50}

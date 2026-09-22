@@ -160,7 +160,7 @@ function buildProductDoc(input: ProductInput, slug: string) {
         brand: input.brand ?? null,
         stock: input.stock ?? 0,
         description: input.description ?? "",
-        rating: input.rating ?? 5,
+        rating: input.rating ?? null,
         featured: input.featured ?? false,
         colors: (input.colors ?? []).map((c, i) => ({
             _type: "productColor" as const,

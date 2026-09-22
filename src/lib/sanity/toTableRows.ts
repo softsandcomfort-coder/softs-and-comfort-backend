@@ -8,7 +8,7 @@ import type { Order } from "./orders";
  * template's markup and styling intact while the data underneath becomes real.
  */
 
-const PLACEHOLDER_IMAGE = "/images/products/1.png";
+const PLACEHOLDER_IMAGE = "/images/products/placeholder.png";
 
 export const money = (n: number | null | undefined) =>
     n == null ? "Rs 0" : `Rs ${n.toLocaleString("en-PK")}`;
