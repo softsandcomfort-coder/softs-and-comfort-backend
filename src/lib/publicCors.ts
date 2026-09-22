@@ -6,7 +6,12 @@
  * configured storefront origin and returns deliberately minimal data.
  */
 
-const ALLOWED_ORIGINS = (process.env.STOREFRONT_ORIGIN || "http://localhost:5173")
+const DEFAULT_ORIGINS =
+    process.env.NODE_ENV === "production"
+        ? "https://www.softandcomfort.com,https://softandcomfort.com"
+        : "http://localhost:5173";
+
+const ALLOWED_ORIGINS = (process.env.STOREFRONT_ORIGIN || DEFAULT_ORIGINS)
     .split(",")
     .map((o) => o.trim())
     .filter(Boolean);

@@ -9,6 +9,11 @@ const albertSans = Albert_Sans({
     variable: "--font-main-family",
 });
 
+// The dashboard is private — keep every page out of search results.
+export const metadata = {
+    robots: { index: false, follow: false },
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en">
