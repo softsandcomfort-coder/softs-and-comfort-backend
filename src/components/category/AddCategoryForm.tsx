@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { shrinkImage } from "@/lib/shrinkImage";
 
 /**
  * The template version posted raw FormData with a `categoryName` field and
@@ -36,10 +37,10 @@ export default function AddCategoryForm() {
         setError(null);
         try {
             const body = new FormData();
-            body.append("file", file);
+            body.append("file", await shrinkImage(file));
             const res = await fetch("/api/upload", { method: "POST", body });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Upload failed");
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.message || `Upload failed (${res.status})`);
             setImage(data.assets[0]);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Upload failed");

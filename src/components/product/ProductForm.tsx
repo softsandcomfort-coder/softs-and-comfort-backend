@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { shrinkImage } from "@/lib/shrinkImage";
 
 /**
  * The single product form, used for both creating and editing.
@@ -154,16 +155,25 @@ export default function ProductForm({ productId }: ProductFormProps) {
         setUploading(true);
         setError(null);
         try {
-            const body = new FormData();
-            pending.forEach((p) => body.append("file", p.file));
+            // One photo per request, shrunk first: Vercel refuses request
+            // bodies over 4.5 MB, which a batch of phone photos easily exceeds.
+            for (const p of pending) {
+                const body = new FormData();
+                body.append("file", await shrinkImage(p.file));
 
-            const res = await fetch("/api/upload", { method: "POST", body });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Upload failed");
+                const res = await fetch("/api/upload", { method: "POST", body });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(
+                        data.message ||
+                            (res.status === 413 ? `${p.file.name} is too large` : `Upload failed (${res.status})`)
+                    );
+                }
 
-            setImages((prev) => [...prev, ...(data.assets as ImageAsset[])]);
-            pending.forEach((p) => URL.revokeObjectURL(p.url));
-            setPending([]);
+                setImages((prev) => [...prev, ...(data.assets as ImageAsset[])]);
+                URL.revokeObjectURL(p.url);
+                setPending((prev) => prev.filter((q) => q !== p));
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Upload failed");
         } finally {
@@ -237,8 +247,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Could not save the product");
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.message || `Could not save the product (${res.status})`);
 
             setNotice(productId ? "Product updated" : "Product created");
             router.push("/all-product");
